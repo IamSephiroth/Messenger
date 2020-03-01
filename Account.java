@@ -1,12 +1,18 @@
+import java.io.Serializable;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
 /**
- * This Account class is used to create an account and perfroms 
+ * This Account class is used to create an account and performs 
  * the operations of an account listed in the AccountInterface.
  * @author Kishan Patel
  */
-public class Account implements AccountInterface {
+public class Account implements AccountInterface, Serializable{
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2790775043386079933L;
 	
 	/**
 	 * The field variables are first declared.
@@ -176,10 +182,7 @@ public class Account implements AccountInterface {
 	 * @return True if the user is online, otherwise false.
 	 */
 	public boolean isOnline() {
-		if (isLoggedIn()) {
-			return true;
-		}
-		return false;
+		return this.isLoggedIn();
 	}
 	
 	/**
@@ -193,7 +196,6 @@ public class Account implements AccountInterface {
      */
 	@Override
     public void login(String password) {
-    	
     	// If the password is correct, the user is logged in.
     	if (password.equals(this.getPassword())) {
     		this.setLoggedIn(true);
@@ -488,6 +490,6 @@ public class Account implements AccountInterface {
 		
 //		test.changePassword();
 		
-		test.changeSecurityCode();
+		test.changeSecurityCode();	
 	}
 }
