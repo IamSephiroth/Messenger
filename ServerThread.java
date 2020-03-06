@@ -5,7 +5,7 @@ import java.net.Socket;
 import java.util.HashMap;
 /**
  * 
- * @author Miyo Takahashi
+ * @author Mayo
  *
  * @param <E>
  */
@@ -31,10 +31,10 @@ public class ServerThread implements Runnable {
 			while ((input = fromClient.readObject()) != null) {
 				System.out.println("Got " + input + " from client");
 				/*
-				 * If an Account object is sent to the server, it gets stored in the
-				 * appropriate table of database.
-				 * Otherwise, the message is sent to the other people in the chat and
-				 * stored in the database.
+				 * If an Account object is sent to the server, it gets stored
+				 * in the appropriate table of database.
+				 * Otherwise, the message is sent to the other people in the
+				 * chat and stored in the database.
 				 */
 				if (input instanceof Account) {
 					/*
@@ -46,6 +46,7 @@ public class ServerThread implements Runnable {
 					/*
 					 * Send message's message to people in chat and store in DB.
 					 */
+					sendMessage((String) input);
 				}
 				
 				
@@ -74,7 +75,7 @@ public class ServerThread implements Runnable {
 	 * 
 	 * @param input
 	 */
-	public void sendMessage(Account input) {
+	public void sendMessage(String input) {
 		
 	}
 }
