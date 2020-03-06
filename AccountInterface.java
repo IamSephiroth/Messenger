@@ -1,3 +1,5 @@
+import java.io.BufferedReader;
+
 /**
  * This interface ensures that all classes that implement this interface have the 
  * required methods in the class.
@@ -13,6 +15,7 @@ public interface AccountInterface {
 	 * If the password is not the same, the remainingLoginAttempts should be 
 	 * reduced by one and a warning should be printed. If the user has zero 
 	 * remainingLoginAttempts, they are required to reset their password.
+	 * @param uername The username entered by the user.
 	 * @param password The password entered by the user.
 	 */
 	public void login(String password);
@@ -44,12 +47,15 @@ public interface AccountInterface {
 	/**
 	 * This method, when implemented, should change the password of the 
 	 * account.
-	 * First, the old password must be compared with the current password, 
+	 * First, the system should confirm that the user wants to change their 
+	 * password.
+	 * Then, the old password must be compared with the current password, 
 	 * if it is correct, then the user should be able to change the account's 
 	 * password to the new password. If it is not correct, a warning message 
 	 * should be printed to the user.
+	 * @param fromUser The input stream of the user.
 	 */
-	public void changePassword();
+	public void changePassword(BufferedReader fromUser);
 	
 	/**
 	 * This method, when implemented, should reset the password of the account.
@@ -64,12 +70,15 @@ public interface AccountInterface {
 	/**
 	 * This method, when implemented, should change the security code of the 
 	 * account.
-	 * First, the old security code must be compared with the current security code, 
+	 * First, the system should confirm that the user wants to change their 
+	 * security code.
+	 * Then, then old security code must be compared with the current security code, 
 	 * if it is correct, then the user should be able to change the account's 
 	 * security code to the new security code. If it is not correct, a warning message 
 	 * should be printed to the user.
+	 * @param fromUser The input stream of the user.
 	 */
-	public void changeSecurityCode();
+	public void changeSecurityCode(BufferedReader fromUser);
 	
 	/**
 	 * This method, when implemented, should reset the security code of the account.
