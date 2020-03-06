@@ -157,15 +157,12 @@ public class Client {
 							System.out.println("Account successfully created.");
 						} else {
 							System.out.print("Error, please create a four digit security code, e.g 1234: ");
-							fromUser = new BufferedReader(new InputStreamReader(System.in));
 						}
 					} catch (NumberFormatException e) {
 						System.out.print("Error, please create a four digit security code, e.g 1234: ");
-						fromUser = new BufferedReader(new InputStreamReader(System.in));
 					}
 				} catch (Exception e) {
 					System.out.print("Error, please create a four digit security code, e.g 1234: ");
-					fromUser = new BufferedReader(new InputStreamReader(System.in));
 				}
 			}
     		user.setRemainingLoginAttempts(3);
@@ -214,6 +211,11 @@ public class Client {
 		try {
         	String messageToSend = "";
         	while (!messageToSend.equals("logout")) {
+        		if(messageToSend.equals("change password")) {
+        			user.changePassword(fromUser);
+        		} else if(messageToSend.equals("change security code")) {
+        			user.changeSecurityCode(fromUser);
+        		}
         		System.out.print(user.getUserName() + ": ");
         		messageToSend = fromUser.readLine();
         		toServer.writeObject(user.getUserName() + ": " + messageToSend);
