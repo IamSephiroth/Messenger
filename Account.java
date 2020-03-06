@@ -471,6 +471,16 @@ public class Account implements AccountInterface, Serializable{
 	}
 	
 	/**
+	 * This toString method defines how to print an Account object.
+	 * @return Account object as a String.
+	 */
+	@Override
+	public String toString() {
+		return " [ " + firstName + ", " + lastName + ", Username: " + userName + ", Email Address: "
+				+ email + ", Password: " + password + ", SecurityCode: " + securityCode +  " ]";
+	}
+
+	/**
 	 * Main method to test the methods.
 	 * REMEMBER TO DELETE THE MAIN METHOD!
 	 */
@@ -493,4 +503,3 @@ public class Account implements AccountInterface, Serializable{
 		test.changeSecurityCode();	
 	}
 }
-// This is Miyo trying to commit
