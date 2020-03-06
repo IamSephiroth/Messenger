@@ -37,10 +37,6 @@ public class Client {
         	
         	System.out.println("Connected to " + serverName);
         	
-        	// Initialise user object 
-        	user = new Account(null, null, null, null, null, 0);
-
-        	
     	} catch (UnknownHostException unknownHostException) {
     		System.err.println("Unknown host: " + serverName);
     		
@@ -101,6 +97,7 @@ public class Client {
     			//New users are taken to the sign up page.
     			signUp();
     		} else {
+    			//If neither, the user is asked the question again.
     			loginOrSignUp();
     		}
     	} catch (Exception e) {
@@ -113,13 +110,19 @@ public class Client {
      * This method makes the client log in to their account.
      */
     public void login() {
-    	
+    	/*
+    	 * Connect to database, ask user to enter username and password.
+    	 * Check that that combination exists in the database, if it does 
+    	 * then log the user into their account.
+    	 */
     }
     
     /**
      * This method makes the Client create a new account.
      */
     public void signUp() {
+    	// Initialise user object 
+    	user = new Account(null, null, null, null, null, 0);
     	System.out.println("Create new account.");
     	try {
 			System.out.print("Please enter your first name: ");
@@ -166,7 +169,8 @@ public class Client {
 				}
 			}
     		user.setRemainingLoginAttempts(3);
-    		
+    		toServer.reset();
+    		toServer.writeObject(user);
     	} catch(Exception e) {
     		System.err.println("Error, try again. ");
     		closeConnection();
@@ -219,6 +223,13 @@ public class Client {
 			System.err.println("Message not sent!");
 			sendMessage();
 		}
+	}
+	
+	/**
+	 * 
+	 */
+	public void receiveMessage() {
+		
 	}
     
 	/**
