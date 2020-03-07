@@ -7,9 +7,14 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 /**
+ * This Client class creates a Client on the command line using 
+ * 		java Client insert_hostname
+ * Once the Client is connected and into their account, typing logout will 
+ * ask the user if they are sure they want to logout, if yes, this ends the 
+ * client and the connection with the server.
  * 
+ * This class may make use of code provided in lectures and previous worksheets.
  * @author Kishan Patel
- *
  */
 public class Client {
 
@@ -114,7 +119,22 @@ public class Client {
     	 * Connect to database, ask user to enter username and password.
     	 * Check that that combination exists in the database, if it does 
     	 * then log the user into their account.
+    	 * If it is incorrect, the user tries again. 
     	 */
+    	
+    	/* If the user has no remaining login attempts, they are requested to 
+    	 * reset their password.
+    	 */
+    	try {
+        	if (user.getRemainingLoginAttempts() == 0) {
+        		user.resetPassword(fromUser);
+        		toServer.reset();
+        		toServer.writeObject(user);
+        	}
+    	} catch (Exception e) {
+    		System.out.println("Error, try again.");
+    	}
+
     }
     
     /**
@@ -166,7 +186,7 @@ public class Client {
 				}
 			}
     		user.setRemainingLoginAttempts(3);
-    		toServer.reset();
+    		toServer.reset(); //Reset outputStream to clear cache.
     		toServer.writeObject(user);
     	} catch(Exception e) {
     		System.err.println("Error, try again. ");
@@ -213,8 +233,16 @@ public class Client {
         	while (!messageToSend.equals("logout")) {
         		if(messageToSend.equals("change password")) {
         			user.changePassword(fromUser);
+        			toServer.reset(); //Reset outputStream to clear cache.
+        			toServer.writeObject(user); // After the user changes their password, their account gets sent to server.
         		} else if(messageToSend.equals("change security code")) {
         			user.changeSecurityCode(fromUser);
+        			toServer.reset(); //Reset outputStream to clear cache.
+        			toServer.writeObject(user); // After the user changes their security code, their account gets sent to server.
+        		} else if(messageToSend.equals("reset security code")) {
+        			user.resetSecurityCode(fromUser);
+        			toServer.reset(); //Reset outputStream to clear cache.
+        			toServer.writeObject(user); // After the user changes their security code, their account gets sent to server.
         		}
         		System.out.print(user.getUserName() + ": ");
         		messageToSend = fromUser.readLine();
