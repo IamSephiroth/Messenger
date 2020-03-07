@@ -209,10 +209,9 @@ public class Account implements AccountInterface, Serializable{
     	int remainingLoginAttempts = this.getRemainingLoginAttempts() - 1;
     	this.setRemainingLoginAttempts(remainingLoginAttempts);
     	
-    	// If the user has no more login attempts, they are required to reset their password.
+    	// If the user has no more login attempts, they are required to reset their password, which is called by Client class.
     	if (remainingLoginAttempts == 0) {
     		System.out.println(remainingLoginAttempts + " login attempts remaining. Please reset password.");
-    		this.resetPassword();
     	} else {
     		System.out.println("Warning, incorrect password! " + remainingLoginAttempts + 
 					   " login attempts remaining.");
@@ -302,15 +301,14 @@ public class Account implements AccountInterface, Serializable{
 						changePassword(fromUser); 
 					}
 				} catch (Exception e) {
-					System.out.println("Error, try again.");
+					System.out.println("Error, could not change password.");
 					changePassword(fromUser);
 				}
 			} else {
 				changePassword(fromUser); //If user does not enter either yes or no, they are asked the question again.
 			}
 		} catch (IOException e) {
-			System.err.println("Error, could not change password.");
-			
+			System.out.println("Error, try again.");
 		}
 
 	}
@@ -323,52 +321,64 @@ public class Account implements AccountInterface, Serializable{
 	 * If the security code is not correct, a warning message is printed to the user.
 	 */
 	@Override
-	public void resetPassword() {
-		Scanner scanner = new Scanner(System.in);
-		System.out.print("Please enter your security code: ");
+	public void resetPassword(BufferedReader fromUser) {
+		System.out.print("Are you sure you want to reset password? ");
 		try {
-			int securityCode = scanner.nextInt(); //user inputs the security code.
-			
-			/*
-			 * If the security code is correct, the user is requested to enter 
-			 * a new password. This resets their password and resets the remaining 
-			 * login attempts. A message is also printed to inform the user of the 
-			 * successful change.
-			 */
-			if (this.checkSecurityCode(securityCode)) {
-				System.out.print("Correct security code. Please enter new password: ");
+			String response = fromUser.readLine();
+			if (response.equals("no")) {
+				return;
+			} else if (response.equals("yes")) {
+				System.out.print("Please enter your security code: ");
 				try {
-					String newPassword = scanner.next();
-					this.setPassword(newPassword);
-					this.setRemainingLoginAttempts(3);
-					System.out.println("Password successfully changed.");
+					String securityCodeString = fromUser.readLine(); //user inputs the security code.
+					int securityCode = Integer.parseInt(securityCodeString);
 					
-				} catch (Exception e) {
-					System.out.println("Error, try again. ");
-					resetPassword(); 
-				}
-				
-			} else {
-				if (Integer.toString(securityCode).length() == 4) {
-					// If the input code is the correct length but does not match, it is incorrect.
-					System.out.println("Inorrect security code. ");
-					resetPassword();
+					/*
+					 * If the security code is correct, the user is requested to enter 
+					 * a new password. This resets their password and resets the remaining 
+					 * login attempts. A message is also printed to inform the user of the 
+					 * successful change.
+					 */
+					if (this.checkSecurityCode(securityCode)) {
+						System.out.print("Correct security code. Please enter new password: ");
+						try {
+							String newPassword = fromUser.readLine();
+							this.setPassword(newPassword);
+							this.setRemainingLoginAttempts(3);
+							System.out.println("Password successfully changed.");
+							
+						} catch (Exception e) {
+							System.out.println("Error, try again. ");
+							resetPassword(fromUser); 
+						}
+						
+					} else {
+						if (Integer.toString(securityCode).length() == 4) {
+							// If the input code is the correct length but does not match, it is incorrect.
+							System.out.println("Inorrect security code. ");
+							resetPassword(fromUser);
+							
+						} else {
+							// If the input code is the incorrect length, it is invalid.
+							System.out.println("Error, enter a four digit security code e.g 1234.");
+							resetPassword(fromUser);
+						}
+					}
 					
-				} else {
-					// If the input code is the incorrect length, it is invalid.
+				} catch (InputMismatchException e) {
+					// If the input code is not an integer, it is invalid.
 					System.out.println("Error, enter a four digit security code e.g 1234.");
-					resetPassword();
+					resetPassword(fromUser);
 				}
+			
+			} else {
+				resetPassword(fromUser); //If user does not enter either yes or no, they are asked the question again.
 			}
-			
-			scanner.close();
-			
-		} catch (InputMismatchException e) {
-			// If the input code is not an integer, it is invalid.
-			System.out.println("Error, enter a four digit security code e.g 1234.");
-			resetPassword();
+		} catch (IOException io) {
+			System.out.println("Error, try again.");
 		}
-	}
+		
+	}	
 
 	/**
 	 * This method changes the security code of the account.
@@ -402,26 +412,21 @@ public class Account implements AccountInterface, Serializable{
 						while (Integer.toString(newSecurityCode).length() != 4) {
 							try {
 								//Read the user input as a String.
-								String newSecurityCodeString = fromUser.readLine(); 
-								try {
-									newSecurityCode = Integer.parseInt(newSecurityCodeString); 
-									if (newSecurityCodeString.length() == 4) {
-										// If the new input code is the correct length, it is set as the new security code.
-										this.setSecurityCode(newSecurityCode);
-										System.out.println("Security code successfully changed. ");
-									} else {
-										// If the new input code is the incorrect length, it is invalid.
-										System.out.print("Error, please create a four digit security code, e.g 1234: ");
-									}	
-								} catch (NumberFormatException e) {
-									// If the new input code is not in correct format, it is invalid.
+								String newSecurityCodeString = fromUser.readLine();
+								newSecurityCode = Integer.parseInt(newSecurityCodeString); 
+								if (newSecurityCodeString.length() == 4) {
+									// If the new input code is the correct length, it is set as the new security code.
+									this.setSecurityCode(newSecurityCode);
+									System.out.println("Security code successfully changed. ");
+								} else {
+									// If the new input code is the incorrect length, it is invalid.
 									System.out.print("Error, please create a four digit security code, e.g 1234: ");
 								}	
-							} catch (Exception e) {
+							} catch (NumberFormatException e) {
+								// If the new input code is not in correct format, it is invalid.
 								System.out.print("Error, please create a four digit security code, e.g 1234: ");
-							}	
+							}		
 						}
-						
 					} else {
 						if (securityCodeString.length() == 4) {
 							// If the input code is the correct length but does not match, it is incorrect.
@@ -447,7 +452,6 @@ public class Account implements AccountInterface, Serializable{
 		}
 		
 	}	
-	
 
 
 	/**
@@ -457,49 +461,59 @@ public class Account implements AccountInterface, Serializable{
 	 * If the password is not correct, a warning message is printed to the user.
 	 */
 	@Override
-	public void resetSecurityCode() {
-		Scanner scanner = new Scanner(System.in);
-		System.out.print("Please enter your password: ");
+	public void resetSecurityCode(BufferedReader fromUser) {
+		System.out.print("Are you sure you want to reset security code? ");
 		try {
-			String password = scanner.next(); //user inputs the password.
-			
-			/*
-			 * If the password is correct, the user is requested to enter 
-			 * a new security code. This resets their security code. 
-			 * A message is also printed to inform the user of the successful change.
-			 */
-			if (this.checkPassword(password)) {
-				System.out.print("Correct password. Please enter new security code: ");
+			String response = fromUser.readLine();
+			if (response.equals("no")) {
+				return;
+			} else if(response.equals("yes")) {
+				System.out.print("Please enter your password: ");
 				try {
-					int newSecurityCode = scanner.nextInt();
+					String password = fromUser.readLine(); //user inputs the password.
 					
-					if (Integer.toString(newSecurityCode).length() == 4) {
-						// If the input code is the correct length, it is set as the new security code.
-						this.setSecurityCode(newSecurityCode);
-						System.out.println("Security code successfully changed. ");
-						
+					/*
+					 * If the password is correct, the user is requested to enter 
+					 * a new security code. This resets their security code. 
+					 * A message is also printed to inform the user of the successful change.
+					 */
+					if (this.checkPassword(password)) {
+						System.out.print("Correct password. Please enter new security code: ");
+						try {
+							//Read the user input as a String.
+							String newSecurityCodeString = fromUser.readLine(); 
+							int newSecurityCode = Integer.parseInt(newSecurityCodeString);
+							if (Integer.toString(newSecurityCode).length() == 4) {
+								// If the input code is the correct length, it is set as the new security code.
+								this.setSecurityCode(newSecurityCode);
+								System.out.println("Security code successfully changed. ");
+								
+							} else {
+								// If the input code is the incorrect length, it is invalid.
+								System.out.println("Error, enter a four digit security code e.g 1234.");
+								resetSecurityCode(fromUser);
+							}
+						} catch (NumberFormatException e) {
+							// If the new input code is not in correct format, it is invalid.
+							System.out.println("Error, please create a four digit security code, e.g 1234. ");
+							resetSecurityCode(fromUser);
+						}		
 					} else {
-						// If the input code is the incorrect length, it is invalid.
-						System.out.println("Error, enter a four digit security code e.g 1234.");
-						resetSecurityCode();
+						System.out.println("Incorrect password, try again.");
+						resetSecurityCode(fromUser); 
 					}
 					
-				} catch (InputMismatchException e) {
-					// If the input code is not an integer, it is invalid.
-					System.out.println("Error, enter a four digit security code e.g 1234.");
-					resetSecurityCode(); 
+				} catch (IOException io) {
+					System.out.println("Error, try again. ");
+					resetSecurityCode(fromUser);
 				}
-				
 			} else {
-				System.out.println("Incorrect password, try again.");
-				resetSecurityCode(); 
+				resetSecurityCode(fromUser); //If user does not enter either yes or no, they are asked the question again.
 			}
-			scanner.close();
-			
-		} catch (Exception e) {
+		} catch (IOException e) {
 			System.out.println("Error, try again. ");
-			resetSecurityCode();
 		}
+		
 	}
 	
 	/**
