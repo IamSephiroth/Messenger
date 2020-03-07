@@ -13,9 +13,10 @@ public interface AccountInterface {
 	 * loggedIn should be set to true. Also, remainingLoginAttempts should be 
 	 * reset to 3.
 	 * If the password is not the same, the remainingLoginAttempts should be 
-	 * reduced by one and a warning should be printed. If the user has zero 
-	 * remainingLoginAttempts, they are required to reset their password.
-	 * @param uername The username entered by the user.
+	 * reduced by one and a warning should be printed. 
+	 * If the user has zero remainingLoginAttempts, they are required to reset 
+	 * their password. The resetPassword method should be called by the Client 
+	 * class, not in the login method.
 	 * @param password The password entered by the user.
 	 */
 	public void login(String password);
@@ -59,13 +60,16 @@ public interface AccountInterface {
 	
 	/**
 	 * This method, when implemented, should reset the password of the account.
-	 * First, the security code must be compared with the security code of the 
+	 * First, the system should confirm that the user wants to reset their 
+	 * password.
+	 * Then, the security code must be compared with the security code of the 
 	 * account, if it is correct, then the user should be able to reset the 
 	 * account's password to the new password and the remainingLoginAttempts 
 	 * should be reset to 3. If the security code is not correct, a warning 
 	 * message should be printed to the user.
+	 * @param fromUser The input stream of the user.
 	 */
-	public void resetPassword();
+	public void resetPassword(BufferedReader fromUser);
 	
 	/**
 	 * This method, when implemented, should change the security code of the 
@@ -82,10 +86,13 @@ public interface AccountInterface {
 	
 	/**
 	 * This method, when implemented, should reset the security code of the account.
-	 * First, the password must be compared with the password of the account, if it 
+	 * First, the system should confirm that the user wants to reset their security
+	 * code.
+	 * Then, the password must be compared with the password of the account, if it 
 	 * is correct, then the user should be able to reset the account's security code 
-	 * to the new security code. If the security code is not correct, a warning 
-	 * message should be printed to the user.
+	 * to the new security code. If the password is not correct, a warning message
+	 * should be printed to the user.
+	 * @param fromUser The input stream of the user.
 	 */
-	public void resetSecurityCode();
+	public void resetSecurityCode(BufferedReader fromUser);
 }
