@@ -3,7 +3,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.util.InputMismatchException;
-import java.util.Scanner;
 
 /**
  * This Account class is used to create an account and performs 
@@ -226,6 +225,22 @@ public class Account implements AccountInterface, Serializable{
     public void logout() {
     	this.setLoggedIn(false);
     }
+    
+    /**
+     * This method sets all the field variables to null as the user has deleted 
+     * their account.
+     */
+    @Override
+    public void deleteAccount() {
+    	this.setFirstName(null);
+    	this.setLastName(null);
+    	this.setUserName(null);
+    	this.setEmail(null);
+    	this.setPassword(null);
+    	this.setSecurityCode(0);
+    	this.setLoggedIn(false);
+    	
+    }
 
     /**
 	 * This method checks if the password given by the user 
@@ -315,8 +330,8 @@ public class Account implements AccountInterface, Serializable{
    
 	/**
 	 * This method resets the password of the account.
-	 * If the security code given by the user is equal to the security code of 
-	 * the account, the user is able to reset their password and the 
+	 * If the username and security code given by the user is equal to the username and 
+	 * security code of the account, the user is able to reset their password and the 
 	 * remainingLoginAttempts is reset to 3.
 	 * If the security code is not correct, a warning message is printed to the user.
 	 */
@@ -328,19 +343,21 @@ public class Account implements AccountInterface, Serializable{
 			if (response.equals("no")) {
 				return;
 			} else if (response.equals("yes")) {
-				System.out.print("Please enter your security code: ");
+				System.out.print("Please enter your username: ");
 				try {
+					String userName = fromUser.readLine();
+					System.out.print("Please enter your security code: ");
 					String securityCodeString = fromUser.readLine(); //user inputs the security code.
 					int securityCode = Integer.parseInt(securityCodeString);
 					
 					/*
-					 * If the security code is correct, the user is requested to enter 
+					 * If the username and security code is correct, the user is requested to enter 
 					 * a new password. This resets their password and resets the remaining 
 					 * login attempts. A message is also printed to inform the user of the 
 					 * successful change.
 					 */
-					if (this.checkSecurityCode(securityCode)) {
-						System.out.print("Correct security code. Please enter new password: ");
+					if (userName.equals(this.getUserName()) && this.checkSecurityCode(securityCode)) {
+						System.out.print("Correct username and security code. Please enter new password: ");
 						try {
 							String newPassword = fromUser.readLine();
 							this.setPassword(newPassword);
@@ -355,7 +372,7 @@ public class Account implements AccountInterface, Serializable{
 					} else {
 						if (Integer.toString(securityCode).length() == 4) {
 							// If the input code is the correct length but does not match, it is incorrect.
-							System.out.println("Inorrect security code. ");
+							System.out.println("Inorrect username and security code combination. ");
 							resetPassword(fromUser);
 							
 						} else {
