@@ -1,0 +1,337 @@
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+/**
+ * This Class contains various tests for the methods in the Account class.
+ * @author Kishan Patel
+ *
+ */
+class AccountTest {
+	//BufferedReader that will be used in tests that require user input
+	private BufferedReader fromUser = new BufferedReader(new InputStreamReader(System.in));
+	//Two account objects that will be used in the tests.
+	private Account test1;
+	private Account test2;
+
+	/**
+	 * This is a piece of code that should be executed before each test.
+	 * It creates a two new objects that will be used throughout.
+	 */
+	@BeforeEach
+	public void beforeEach() {
+		test1 = new Account("John", "Smith", "JS", "js@bham", "password", 1234);
+		test2 = new Account("Mary", "Anderson", "M_Anderson", "ma@bham", "MaRyAnDeRsOn", 0000);
+	}
+	
+	/**
+	 * The following set of tests test the getters
+	 */
+	@Test
+	void testGetters() {
+		String expectedFirstName1 = "John";
+		String actualFirstName1 = test1.getFirstName();
+		assertEquals(expectedFirstName1, actualFirstName1, "Error, expected first name does not equal actual first name.");
+		
+		String expectedFirstName2 = "Mary";
+		String actualFirstName2 = test2.getFirstName();
+		assertEquals(expectedFirstName2, actualFirstName2, "Error, expected first name does not equal actual first name.");
+		
+		String expectedLastName1 = "Smith";
+		String actualLastName1 = test1.getLastName();
+		assertEquals(expectedLastName1, actualLastName1, "Error, expected last name does not equal actual last name.");
+		
+		String expectedLastName2 = "Anderson";
+		String actualLastName2 = test2.getLastName();
+		assertEquals(expectedLastName2, actualLastName2, "Error, expected last name does not equal actual last name.");
+		
+		String expectedUserName1 = "JS";
+		String actualUserName1 = test1.getUserName();
+		assertEquals(expectedUserName1, actualUserName1, "Error, expected username does not equal actual username.");
+		
+		String expectedUserName2 = "M_Anderson";
+		String actualUserName2 = test2.getUserName();
+		assertEquals(expectedUserName2, actualUserName2, "Error, expected username does not equal actual username.");
+		
+		String expectedEmail1 = "js@bham";
+		String actualEmail1 = test1.getEmail();
+		assertEquals(expectedEmail1, actualEmail1, "Error, expected email does not equal actual email.");
+		
+		String expectedEmail2 = "ma@bham";
+		String actualEmail2 = test2.getEmail();
+		assertEquals(expectedEmail2, actualEmail2, "Error, expected email does not equal actual email.");
+		
+		String expectedPassword1 = "password";
+		String actualPassword1 = test1.getPassword();
+		assertEquals(expectedPassword1, actualPassword1, "Error, expected password does not equal actual password.");
+		
+		String expectedPassword2 = "MaRyAnDeRsOn";
+		String actualPassword2 = test2.getPassword();
+		assertEquals(expectedPassword2, actualPassword2, "Error, expected password does not equal actual password.");
+		
+		int expectedSecurityCode1 = 1234;
+		int actualSecurityCode1 = test1.getSecurityCode();
+		assertEquals(expectedSecurityCode1, actualSecurityCode1, "Error, expected security code does not equal actual security code.");
+		
+		int expectedSecurityCode2 = 0000;
+		int actualSecurityCode2 = test2.getSecurityCode();
+		assertEquals(expectedSecurityCode2, actualSecurityCode2, "Error, expected security code does not equal actual security code.");
+		
+		boolean expectedLoggedIn1 = false;
+		boolean actualLoggedIn1 = test1.isLoggedIn();
+		assertEquals(expectedLoggedIn1, actualLoggedIn1, "Error, expected loggedIn does not equal actual loggedIn.");
+		
+		boolean expectedLoggedIn2 = false;
+		boolean actualLoggedIn2 = test2.isLoggedIn();
+		assertEquals(expectedLoggedIn2, actualLoggedIn2, "Error, expected loggedIn does not equal actual loggedIn.");
+		
+		int expectedRemainingLoginAttempts1 = 3;
+		int actualRemainingLoginAttempts1 = test1.getRemainingLoginAttempts();
+		assertEquals(expectedRemainingLoginAttempts1, actualRemainingLoginAttempts1, "Error, expected log in attempts does not equal actual log in attempts.");
+		
+		int expectedRemainingLoginAttempts2 = 3;
+		int actualRemainingLoginAttempts2 = test2.getRemainingLoginAttempts();
+		assertEquals(expectedRemainingLoginAttempts2, actualRemainingLoginAttempts2, "Error, expected log in attempts does not equal actual log in attempts.");
+	}
+	
+	/**
+	 * The following set of tests test the setters.
+	 */
+	@Test
+	void TestSetter() {
+		test1.setFirstName("Johny");
+		String expectedFirstName1 = "Johny";
+		String actualFirstName1 = test1.getFirstName();
+		assertEquals(expectedFirstName1, actualFirstName1, "Error, expected first name does not equal actual first name.");
+		
+		test2.setFirstName("Martha");
+		String expectedFirstName2 = "Martha";
+		String actualFirstName2 = test2.getFirstName();
+		assertEquals(expectedFirstName2, actualFirstName2, "Error, expected first name does not equal actual first name.");
+		
+		test1.setLastName("Smithy");
+		String expectedLastName1 = "Smithy";
+		String actualLastName1 = test1.getLastName();
+		assertEquals(expectedLastName1, actualLastName1, "Error, expected last name does not equal actual last name.");
+		
+		test2.setLastName("Johnson");
+		String expectedLastName2 = "Johnson";
+		String actualLastName2 = test2.getLastName();
+		assertEquals(expectedLastName2, actualLastName2, "Error, expected last name does not equal actual last name.");
+		
+		test1.setUserName("J_S");
+		String expectedUserName1 = "J_S";
+		String actualUserName1 = test1.getUserName();
+		assertEquals(expectedUserName1, actualUserName1, "Error, expected username does not equal actual username.");
+		
+		test2.setUserName("M_J");
+		String expectedUserName2 = "M_J";
+		String actualUserName2 = test2.getUserName();
+		assertEquals(expectedUserName2, actualUserName2, "Error, expected username does not equal actual username.");
+		
+		test1.setEmail("j_s@bham");
+		String expectedEmail1 = "j_s@bham";
+		String actualEmail1 = test1.getEmail();
+		assertEquals(expectedEmail1, actualEmail1, "Error, expected email does not equal actual email.");
+		
+		test2.setEmail("m_j@bham");
+		String expectedEmail2 = "m_j@bham";
+		String actualEmail2 = test2.getEmail();
+		assertEquals(expectedEmail2, actualEmail2, "Error, expected email does not equal actual email.");
+		
+		test1.setPassword("newpassword");
+		String expectedPassword1 = "newpassword";
+		String actualPassword1 = test1.getPassword();
+		assertEquals(expectedPassword1, actualPassword1, "Error, expected password does not equal actual password.");
+		
+		test2.setPassword("marthaJohnson");
+		String expectedPassword2 = "marthaJohnson";
+		String actualPassword2 = test2.getPassword();
+		assertEquals(expectedPassword2, actualPassword2, "Error, expected password does not equal actual password.");
+		
+		test1.setSecurityCode(9999);
+		int expectedSecurityCode1 = 9999;
+		int actualSecurityCode1 = test1.getSecurityCode();
+		assertEquals(expectedSecurityCode1, actualSecurityCode1, "Error, expected security code does not equal actual security code.");
+		
+		test2.setSecurityCode(1862);
+		int expectedSecurityCode2 = 1862;
+		int actualSecurityCode2 = test2.getSecurityCode();
+		assertEquals(expectedSecurityCode2, actualSecurityCode2, "Error, expected security code does not equal actual security code.");
+		
+		test1.setLoggedIn(true);
+		boolean expectedLoggedIn1 = true;
+		boolean actualLoggedIn1 = test1.isLoggedIn();
+		assertEquals(expectedLoggedIn1, actualLoggedIn1, "Error, expected loggedIn does not equal actual loggedIn.");
+		
+		test2.setLoggedIn(true);
+		boolean expectedLoggedIn2 = true;
+		boolean actualLoggedIn2 = test2.isLoggedIn();
+		assertEquals(expectedLoggedIn2, actualLoggedIn2, "Error, expected loggedIn does not equal actual loggedIn.");
+		
+		test1.setRemainingLoginAttempts(2);
+		int expectedRemainingLoginAttempts1 = 2;
+		int actualRemainingLoginAttempts1 = test1.getRemainingLoginAttempts();
+		assertEquals(expectedRemainingLoginAttempts1, actualRemainingLoginAttempts1, "Error, expected log in attempts does not equal actual log in attempts.");
+		
+		test2.setRemainingLoginAttempts(0);
+		int expectedRemainingLoginAttempts2 = 0;
+		int actualRemainingLoginAttempts2 = test2.getRemainingLoginAttempts();
+		assertEquals(expectedRemainingLoginAttempts2, actualRemainingLoginAttempts2, "Error, expected log in attempts does not equal actual log in attempts.");
+	}
+	
+	/**
+	 * The following set of tests test the login method
+	 */
+	@Test
+	void testLogin() {
+		test1.login("wrongPassword");
+		assertFalse(test1.isLoggedIn()); //Incorrect password
+		test1.login("wrongPassword1");
+		assertFalse(test1.isLoggedIn()); //Incorrect password
+		int expected1a = 1;
+		int actual1a = test1.getRemainingLoginAttempts();
+		assertEquals(expected1a, actual1a, "Error, expected log in attempts does not equal actual log in attempts.");
+		test1.login("password");
+		assertTrue(test1.isLoggedIn()); //Correct password
+		int expected1b = 3;
+		int actual1b = test1.getRemainingLoginAttempts();
+		assertEquals(expected1b, actual1b, "Error, expected log in attempts does not equal actual log in attempts.");
+		
+		test2.login("wrongPassword");
+		assertFalse(test2.isLoggedIn()); //Incorrect password
+		test2.login("wrongPassword1");
+		assertFalse(test2.isLoggedIn()); //Incorrect password
+		test2.login("wrongPassword2");
+		assertFalse(test2.isLoggedIn()); //Incorrect password
+		int expected2a = 0;
+		int actual2a = test2.getRemainingLoginAttempts();
+		assertEquals(expected2a, actual2a, "Error, expected log in attempts does not equal actual log in attempts.");
+		
+	}
+	
+	/**
+	 * The following set of tests test the logout method
+	 */
+	@Test
+	void testLogout() {
+		test1.setLoggedIn(true);
+		test2.setLoggedIn(true);
+		
+		test1.logout();
+		boolean expectedLoggedIn1 = false;
+		boolean actualLoggedIn1 = test1.isLoggedIn();
+		assertEquals(expectedLoggedIn1, actualLoggedIn1, "Error, expected loggedIn does not equal actual loggedIn.");
+		
+		test2.logout();
+		boolean expectedLoggedIn2 = false;
+		boolean actualLoggedIn2 = test1.isLoggedIn();
+		assertEquals(expectedLoggedIn2, actualLoggedIn2, "Error, expected loggedIn does not equal actual loggedIn.");
+	}
+	
+	/**
+	 * The following set of tests test the deleteAccount method
+	 */
+	@Test
+	void testDeleteAccount() {
+		test1.deleteAccount();
+		test2.deleteAccount();
+		String expectedFirstName = null;
+		String expectedLastName = null;
+		String expectedUserName = null;
+		String expectedEmail = null;
+		String expectedPassword = null;
+		int expectedSecurityCode = 0;
+		
+		String actualFirstName1 = test1.getFirstName();
+		assertEquals(expectedFirstName, actualFirstName1, "Error, expected first name does not equal actual first name.");
+		String actualLastName1 = test1.getLastName();
+		assertEquals(expectedLastName, actualLastName1, "Error, expected last name does not equal actual last name.");
+		String actualUserName1 = test1.getUserName();
+		assertEquals(expectedUserName, actualUserName1, "Error, expected username does not equal actual username.");
+		String actualEmail1 = test1.getEmail();
+		assertEquals(expectedEmail, actualEmail1, "Error, expected email does not equal actual email.");
+		String actualPassword1 = test1.getPassword();
+		assertEquals(expectedPassword, actualPassword1, "Error, expected password does not equal actual password.");
+		int actualSecurityCode1 = test1.getSecurityCode();
+		assertEquals(expectedSecurityCode, actualSecurityCode1, "Error, expected security code does not equal actual security code.");
+		
+		String actualFirstName2 = test2.getFirstName();
+		assertEquals(expectedFirstName, actualFirstName2, "Error, expected first name does not equal actual first name.");
+		String actualLastName2 = test2.getLastName();
+		assertEquals(expectedLastName, actualLastName2, "Error, expected last name does not equal actual last name.");
+		String actualUserName2 = test2.getUserName();
+		assertEquals(expectedUserName, actualUserName2, "Error, expected username does not equal actual username.");
+		String actualEmail2 = test2.getEmail();
+		assertEquals(expectedEmail, actualEmail2, "Error, expected email does not equal actual email.");
+		String actualPassword2 = test2.getPassword();
+		assertEquals(expectedPassword, actualPassword2, "Error, expected password does not equal actual password.");
+		int actualSecurityCode2 = test2.getSecurityCode();
+		assertEquals(expectedSecurityCode, actualSecurityCode2, "Error, expected security code does not equal actual security code.");
+	}
+	
+	/**
+	 * The following set of tests test the checkPassword method
+	 */
+	@Test
+	void testCheckPassword() {
+		boolean expected1 = true;
+		boolean actual1 = test1.checkPassword("password");
+		assertEquals(expected1, actual1, "Error, expected does not equal actual.");
+		
+		boolean expected2 = false;
+		boolean actual2 = test2.checkPassword("password");
+		assertEquals(expected2, actual2, "Error, expected does not equal actual.");
+	}
+	
+	/**
+	 * The following set of tests test the checkSecurityCode method
+	 */
+	@Test
+	void testCheckSecurityCode() {
+		boolean expected1 = false;
+		boolean actual1 = test1.checkSecurityCode(0000);
+		assertEquals(expected1, actual1, "Error, expected does not equal actual.");
+		
+		boolean expected2 = true;
+		boolean actual2 = test2.checkSecurityCode(0000);
+		assertEquals(expected2, actual2, "Error, expected does not equal actual.");
+	}
+	
+	/**
+	 * The following set of tests test the changePassword method
+	 */
+	@Test
+	void testChangePassword() {
+		
+	}
+	
+	/**
+	 * The following set of tests test the resetPasword method
+	 */
+	@Test
+	void testResetPassword() {
+		
+	}
+	
+	/**
+	 * The following set of tests test the changeSecurityCode method
+	 */
+	@Test
+	void testChangeSecurityCode() {
+		
+	}
+	
+	/**
+	 * The following set of tests test the resetSecurityCode method
+	 */
+	@Test
+	void testresetSecurityCode() {
+		
+	}
+
+}
