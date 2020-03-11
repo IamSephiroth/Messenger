@@ -1,15 +1,25 @@
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+//import java.util.HashMap;
+//import java.util.HashSet;
+//import java.util.Map;
+//import java.util.Set;
+//import java.util.TreeSet;
+import java.util.Vector;
 
 public class Server {
+	
 //	private Set<Socket> clients = new HashSet<Socket>();
 //	private Map<String, Socket> clients = new HashMap<String, Socket>();
+	
+	static Vector<ServerThread> Users = new Vector<>(); // vector to store clients that are connected to the server
+	
+	static int counter = 0; // counter for clients
+	static Account user;
+	
+	static ArrayList<String> accountName = new ArrayList<String>();
+	static ArrayList<ObjectOutputStream> chatLog = new ArrayList<ObjectOutputStream>();
 	
     /**
 	 * Setup a ServerSocket in the Server class.
@@ -17,30 +27,31 @@ public class Server {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		ObjectOutputStream toClient;
-	    ObjectInputStream fromClient;
-		Socket client = null;
-		ArrayList<Socket> clients = new ArrayList<Socket>();
-			ServerSocket serverSocket = null;
+		ServerSocket ss = null;
 		try {
-			serverSocket = new ServerSocket(50000);
+			ss = new ServerSocket(50000);
+			System.out.println("Server is listening on port 50000");
 			System.out.println("Waiting for a client.");
-			//acceptClients();
 		} catch (IOException e) {
 			System.err.println("could not listen on port: " + 50000);
 		}
+
 		try {
 			while (true) {
-				Socket clientSocket = serverSocket.accept();
-				clients.add(clientSocket); //Add client to the list of clients online.
+				Socket clientSocket = ss.accept();
 				System.out.println("Client accepted");
-				ServerThread s = new ServerThread(clientSocket);
-				Thread a = new Thread(s);
-				a.start();
+							
+				ServerThread chatThread = new ServerThread(clientSocket, user); // new handler created for each client
+				Thread clients = new Thread(chatThread);
+				Users.add(chatThread);
+				System.out.println("Client added to active users list");
+				clients.start();
+				counter++;
+				
 			}
 		} catch (Exception e) {
 				try {
-					serverSocket.close();
+					ss.close();
 				} catch (IOException io) {
 					System.out.println("Could not close serverSocket" + io.getMessage());
 				}
