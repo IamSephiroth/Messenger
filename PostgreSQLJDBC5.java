@@ -11,8 +11,8 @@ public class PostgreSQLJDBC5 {
       try {
          Class.forName("org.postgresql.Driver");
          c = DriverManager
-            .getConnection("jdbc:postgresql://localhost:5432/projectdb3",
-            		"postgres", "Sheff1eldunited");
+            .getConnection("jdbc:postgresql://mod-msc-sw1.cs.bham.ac.uk/",
+            		"krishna", "08tgfexbf8");
          c.setAutoCommit(false);
          System.out.println("Opened database successfully");
 

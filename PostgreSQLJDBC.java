@@ -10,16 +10,20 @@ public class PostgreSQLJDBC {
       try {
          Class.forName("org.postgresql.Driver");
          c = DriverManager
-            .getConnection("jdbc:postgresql://localhost:5432/projectdb3",
-            "postgres", "Sheff1eldunited");
+            .getConnection("jdbc:postgresql://mod-msc-sw1.cs.bham.ac.uk/",
+            "krishna", "08tgfexbf8");
          System.out.println("Opened database successfully");
 
          stmt = c.createStatement();
-         String schema1 = "CREATE TABLE USERS " +
-            "(ID CHAR(10) PRIMARY KEY     NOT NULL," +
-            " NAME1      CHAR(10)," +
-            " NAME2 		CHAR(10)," +
-            " PASSWORD		CHAR(10)," +
+         String schema1 = "CREATE TABLE USERS" +
+            "(ID VARCHAR(10) PRIMARY KEY     NOT NULL," +
+            " FIRSTNAME      VARCHAR(250) NOT NULL," +
+            " LASTNAME		VARCHAR(250) NOT NULL," +
+            " PASSWORD		VARCHAR(250) NOT NULL," +
+            " EMAIL			VARCHAR(250) NOT NULL,"	+
+            " SECURITY_CODE	INT NOT NULL CHECK(SECURITY_CODE BETWEEN 0 AND 9999)," +	
+            " LOGGEDIN		BOOLEAN NOT NULL," +
+            " REMAINING_LOGIN_ATTEMPTS INT NOT NULL CHECK(REMAINING_LOGIN_ATTEMPTS BETWEEN 0 AND 3)," +
             " DATE        CHAR(8))"; 
        
          stmt.executeUpdate(schema1);
@@ -27,8 +31,8 @@ public class PostgreSQLJDBC {
          stmt = c.createStatement();
          String schema2 = "CREATE TABLE MESSAGES " +
             "(ID CHAR(10) PRIMARY KEY     NOT NULL," +
-            " RECEIVER_ID		CHAR(10)," +
-            " MESSAGE		CHAR(50)," +
+            " RECEIVER_ID		VARCHAR(10)," +
+            " MESSAGE		VARCHAR(250)," +
             " DATE        CHAR(8))"; 
        
          stmt.executeUpdate(schema2);
