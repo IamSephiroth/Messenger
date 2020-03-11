@@ -202,18 +202,19 @@ public class Account implements AccountInterface, Serializable{
     	if (password.equals(this.getPassword())) {
     		this.setLoggedIn(true);
     		this.setRemainingLoginAttempts(3);
-    	}
-    	
-    	// Otherwise, the remaining login attempts is reduced by one. 
-    	int remainingLoginAttempts = this.getRemainingLoginAttempts() - 1;
-    	this.setRemainingLoginAttempts(remainingLoginAttempts);
-    	
-    	// If the user has no more login attempts, they are required to reset their password, which is called by Client class.
-    	if (remainingLoginAttempts == 0) {
-    		System.out.println(remainingLoginAttempts + " login attempts remaining. Please reset password.");
     	} else {
-    		System.out.println("Warning, incorrect password! " + remainingLoginAttempts + 
-					   " login attempts remaining.");
+    	
+			// Otherwise, the remaining login attempts is reduced by one. 
+			int remainingLoginAttempts = this.getRemainingLoginAttempts() - 1;
+			this.setRemainingLoginAttempts(remainingLoginAttempts);
+			
+			// If the user has no more login attempts, they are required to reset their password, which is called by Client class.
+			if (remainingLoginAttempts == 0) {
+				System.out.println(remainingLoginAttempts + " login attempts remaining. Please reset password.");
+			} else {
+				System.out.println("Warning, incorrect password! " + remainingLoginAttempts + 
+						   " login attempts remaining.");
+			}
     	}
     }
     
@@ -372,7 +373,7 @@ public class Account implements AccountInterface, Serializable{
 					} else {
 						if (Integer.toString(securityCode).length() == 4) {
 							// If the input code is the correct length but does not match, it is incorrect.
-							System.out.println("Inorrect username and security code combination. ");
+							System.out.println("Incorrect username and security code combination. ");
 							resetPassword(fromUser);
 							
 						} else {
@@ -447,7 +448,7 @@ public class Account implements AccountInterface, Serializable{
 					} else {
 						if (securityCodeString.length() == 4) {
 							// If the input code is the correct length but does not match, it is incorrect.
-							System.out.println("Inorrect security code. ");
+							System.out.println("Incorrect security code. ");
 							changeSecurityCode(fromUser);
 							
 						} else {
