@@ -3,7 +3,7 @@ import java.sql.DriverManager;
 import java.sql.Statement;
 
 
-public class NewPostgreSQLJDBC {
+public class PostgreSQLJDBC {
    public static void main( String args[] ) {
       Connection c = null;
       Statement stmt = null;
