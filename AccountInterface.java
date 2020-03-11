@@ -28,6 +28,12 @@ public interface AccountInterface {
 	public void logout();
 	
 	/**
+	 * This delete account method, when implemented, should set all the field 
+	 * variables to null.
+	 */
+	public void deleteAccount();
+	
+	/**
 	 * This method, when implemented, should check if the password given 
 	 * by the user matches the password of the account.
 	 * @param password The password given by the user.

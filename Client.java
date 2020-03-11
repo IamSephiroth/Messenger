@@ -185,6 +185,7 @@ public class Client {
 					System.out.print("Error, please create a four digit security code, e.g 1234: ");
 				}
 			}
+			user.setLoggedIn(true);
     		user.setRemainingLoginAttempts(3);
     		toServer.reset(); //Reset outputStream to clear cache.
     		toServer.writeObject(user);
@@ -210,6 +211,8 @@ public class Client {
 			} else if (response.equals("yes")) {
 				user.logout();
 				System.out.println("Logged out!");
+				toServer.reset(); //Reset outputStream to clear cache.
+    			toServer.writeObject(user); // After the user logs out, their account gets sent to server.
 				closeConnection();
 			} else {
 				logout();
@@ -221,16 +224,43 @@ public class Client {
     }
     
     /**
+     * This method asks the Client to confirm if they want to delete their account or not.
+     * If no, the Client can continue to send messages.
+     * If yes, the Client's account is deleted and they are disconnected
+     * Otherwise the Client is asked the question again until they answer with 
+     * yes or no.
+     */
+    public void deleteAccount() {
+    	System.out.print("Are you sure you want to delete account? ");
+    	try {
+    		String response = fromUser.readLine();
+			if (response.equals("no")) {
+				sendMessage();
+			} else if (response.equals("yes")) {
+				user.deleteAccount();
+				System.out.println("Account Deleted!");
+				toServer.reset(); //Reset outputStream to clear cache.
+    			toServer.writeObject(user); // After the user deletes their account, it gets sent to server to be deleted from the database.
+				closeConnection();
+			} else {
+				deleteAccount();
+			}
+		} catch (IOException e) {
+			System.err.println("Error, could not logout.");
+			closeConnection();
+		}
+    }
+    /**
      * This method allows the Client to send messaged to the Server. 
      * If an error occurs, the Client is notified by an error message informing 
      * them that the message was not sent.
-     * If they Client sends logout, they will be asked to confirm if they 
-     * want to logout or not.
+     * If they Client sends logout or delete account, they will be asked to confirm if they 
+     * want to proceed with their choice.
      */
 	public void sendMessage() {
 		try {
         	String messageToSend = "";
-        	while (!messageToSend.equals("logout")) {
+        	while (!messageToSend.equals("logout") && !messageToSend.equals("delete account") ) {
         		if(messageToSend.equals("change password")) {
         			user.changePassword(fromUser);
         			toServer.reset(); //Reset outputStream to clear cache.
@@ -248,7 +278,11 @@ public class Client {
         		messageToSend = fromUser.readLine();
         		toServer.writeObject(user.getUserName() + ": " + messageToSend);
         	}
-        	logout();	
+        	if (messageToSend.equals("logout")) {
+        		logout();
+        	} else {
+        		deleteAccount();
+        	}
 		} catch(Exception e) {
 			System.err.println("Message not sent!");
 			sendMessage();
