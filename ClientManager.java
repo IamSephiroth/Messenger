@@ -15,6 +15,7 @@ import java.sql.Statement;
  * TODO register new user
  * TODO login existing user
  * TODO send message to the right client
+ * TODO Client get message only after sending one -> fix it.
  * 
  * @author Miyo Takahashi
  * @version 2020-03-12
@@ -27,7 +28,7 @@ public class ClientManager implements Runnable {
 	private ObjectInputStream fromClient;
 	private Object input;
 	// key is username, value is clientManager
-	private static HashMap<String, ClientManager> clientMap;
+	private static HashMap<String, ClientManager> clientMap = new HashMap<String, ClientManager>();
 	/**
 	 * Constructor of ClientManager class.
 	 * comm with given client
@@ -45,7 +46,9 @@ public class ClientManager implements Runnable {
 	public static ClientManager getClientManager(String userName) {
 		return clientMap.get(userName);
 	}
-	
+	public static void addClient(String userName, ClientManager cm) {
+		clientMap.put(userName, cm);
+	}
 	/**
 	 * To be executed when a client is connected.
 	 * 
@@ -85,7 +88,9 @@ public class ClientManager implements Runnable {
 					 */
 					ClientManager target;
 					// TODO give target the appropriate value
-					target = ;
+					// do not handle target in Server class, do it here
+					String userName = "1";
+					target = getClientManager(userName);
 					target.sendMessage((String) input);
 					System.out.println("sending message...");
 				}
@@ -128,6 +133,7 @@ public class ClientManager implements Runnable {
 		String email = input.getEmail();
 		String password = input.getPassword();
 		int securityCode = input.getSecurityCode();
+		addClient(userName, this);
 		/*
 		 * Know which account this thread is handling.
 		 */		
