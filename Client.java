@@ -82,6 +82,7 @@ public class Client {
 			System.err.println("Could not close connection to " + server.getInetAddress().getHostName() + ".");
 		} 
     }
+    
 
     /**
      * This method asks the client whether they want to sign in or 
@@ -121,8 +122,23 @@ public class Client {
     	 * then log the user into their account.
     	 * If it is incorrect, the user tries again. 
     	 */
+    	System.out.println("Login to account.");
+    	try {
+    		System.out.print("Please enter your username: ");
+    		String username = fromUser.readLine();
+    		System.out.print("Please enter your password: ");
+    		String password = fromUser.readLine();
+    		/*
+    		 * If the username and password combination is correct, get the account 
+    		 * object and set the "user" object to that object.
+    		 */
+    	}  catch(Exception e) {
+    		System.err.println("Error, try again. ");
+    		closeConnection();
+    	} 
     	
-    	/* If the user has no remaining login attempts, they are requested to 
+    	/* 
+    	 * If the user has no remaining login attempts, they are requested to 
     	 * reset their password.
     	 */
     	try {
@@ -189,6 +205,7 @@ public class Client {
     		user.setRemainingLoginAttempts(3);
     		toServer.reset(); //Reset outputStream to clear cache.
     		toServer.writeObject(user);
+    //		toServer.writeUTF(user.toString());
     	} catch(Exception e) {
     		System.err.println("Error, try again. ");
     		closeConnection();
@@ -213,7 +230,7 @@ public class Client {
 				System.out.println("Logged out!");
 				toServer.reset(); //Reset outputStream to clear cache.
     			toServer.writeObject(user); // After the user logs out, their account gets sent to server.
-				closeConnection();
+//				closeConnection();
 			} else {
 				logout();
 			}
@@ -241,7 +258,7 @@ public class Client {
 				System.out.println("Account Deleted!");
 				toServer.reset(); //Reset outputStream to clear cache.
     			toServer.writeObject(user); // After the user deletes their account, it gets sent to server to be deleted from the database.
-				closeConnection();
+//				closeConnection();
 			} else {
 				deleteAccount();
 			}
@@ -250,11 +267,14 @@ public class Client {
 			closeConnection();
 		}
     }
+    
     /**
      * This method allows the Client to send messaged to the Server. 
      * If an error occurs, the Client is notified by an error message informing 
      * them that the message was not sent.
-     * If they Client sends logout or delete account, they will be asked to confirm if they 
+     * If the Client sends change password, change security code or reset security code, they 
+     * will be asked to confirm if they want to proceed with their choice and make the changes.
+     * If the Client sends logout or delete account, they will be asked to confirm if they 
      * want to proceed with their choice.
      */
 	public void sendMessage() {
@@ -292,14 +312,57 @@ public class Client {
 	/**
 	 * 
 	 */
-	public void receiveMessage() {
-		
+	Thread sendMessages = new Thread(new Runnable() {
+		@Override
+		public void run() {
+			sendMessage();
+			return;
+		}
+	});
+	
+	/**
+	 * 
+	 */
+	public void receiveMessages() {
+		while (user.isLoggedIn()) {
+			try {
+				Object msg = fromServer.readObject();
+				System.out.println("Received: " + msg);
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				System.out.println("Could not receive message.");
+			}
+		}
 	}
+	
+//	Thread receiveMessages = new Thread(new Runnable() {
+//		@Override
+//		public void run() {
+//			while (ableToReceiveMessages) {
+//				try {
+//					Object msg = fromServer.readObject();
+//					System.out.println("Received: " + msg);
+//				} catch (ClassNotFoundException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				} catch (IOException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//			}
+//			return;
+//		}
+//	});
     
 	/**
 	 * The run method is what the client actually does.
 	 * The Client first logs in to their account or signs up to a new account. 
-	 * The Client can then send messages to the Sever.
+	 * The Client can then send messages to the Server and simultaneously receive 
+	 * messages from the server.
+	 * Once the Client has logged out, or if they delete their account, the 
+	 * connection is closed.
 	 * 
 	 * EDIT JAVADOC WHEN CHANGE THE RUN METHOD!!! 
 	 */
@@ -307,9 +370,15 @@ public class Client {
 		try {
 			//Client is asked to login or sign up.
 			loginOrSignUp();
-			sendMessage();	
+			//Once logged in, a thread is started that allows the client to send messages.
+			sendMessages.start();
+			//Simultaneously the client is able to receive messages.
+			receiveMessages();
+			//Once the user has logged out, or if they delete their account, the connection is closed.
+			closeConnection();
 		} catch(Exception e) {
 			System.err.println("Socket communication broke.");
+			closeConnection();
 		}
 	}
 	
