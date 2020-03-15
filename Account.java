@@ -1,8 +1,4 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.Serializable;
-import java.util.InputMismatchException;
 
 /**
  * This Account class is used to create an account and performs 
@@ -186,37 +182,6 @@ public class Account implements AccountInterface, Serializable{
 	public boolean isOnline() {
 		return this.isLoggedIn();
 	}
-	
-	/**
-     * This method checks if the password provided by the user is correct.
-     * If it is correct, the field variable loggedIn becomes true and the 
-     * remainingLoginAttempts is reset to 3.
-     * Otherwise the remainingLoginAttempts is reduced by one and a warning 
-     * is printed to the user. If the user has zero remainingLoginAttempts, 
-     * they are required to reset their password.
-     * @param password The password provided by the user.
-     */
-	@Override
-    public void login(String password) {
-    	// If the password is correct, the user is logged in.
-    	if (password.equals(this.getPassword())) {
-    		this.setLoggedIn(true);
-    		this.setRemainingLoginAttempts(3);
-    	} else {
-    	
-			// Otherwise, the remaining login attempts is reduced by one. 
-			int remainingLoginAttempts = this.getRemainingLoginAttempts() - 1;
-			this.setRemainingLoginAttempts(remainingLoginAttempts);
-			
-			// If the user has no more login attempts, they are required to reset their password, which is called by Client class.
-			if (remainingLoginAttempts == 0) {
-				System.out.println(remainingLoginAttempts + " login attempts remaining. Please reset password.");
-			} else {
-				System.out.println("Warning, incorrect password! " + remainingLoginAttempts + 
-						   " login attempts remaining.");
-			}
-    	}
-    }
     
     /**
      * This method sets the field variable LoggedIn to false once the user 
@@ -277,262 +242,22 @@ public class Account implements AccountInterface, Serializable{
 
     /** 
 	 * This method changes the password of the account.
-	 * First the method confirms that the user wants to change their password. 
-	 * Then if the old password matches the current password, the password of the 
-	 * account is changed.
-	 * Otherwise, a warning message is printed to the user.
-	 * @param fromUser The input stream of the user.
+	 * The method checks if the oldpassword input by the user is equal to 
+	 * the current password.
+	 * If it is, then the password is set to the new password.
+	 * Otherwise it is not.
+	 * @param oldPassword Old password input by user
+	 * @param newPassword New password to set.
      */
 	@Override
-	public void changePassword(BufferedReader fromUser) {
-    	System.out.print("Are you sure you want to change password? ");
-		try {
-			String response = fromUser.readLine();
-			if (response.equals("no")) { //User does not want to change password.
-				return;
-			} else if (response.equals("yes")) {
-				System.out.print("Please enter your current password: ");
-				try {
-					String password = fromUser.readLine(); //user inputs the password.
-					
-					/*
-					 * If the password is correct, the user is requested to enter 
-					 * a new password. This changes their password. 
-					 * A message is also printed to inform the user of the successful change.
-					 */
-					if (this.checkPassword(password)) {
-						System.out.print("Correct password. Please enter new password: ");
-						try {
-							String newPassword = fromUser.readLine();
-							this.setPassword(newPassword);
-							this.setRemainingLoginAttempts(3);
-							System.out.println("Password successfully changed.");
-							
-						} catch (Exception e) {
-							System.out.println("Error, try again. ");
-							changePassword(fromUser); 
-						}
-					} else {
-						System.out.println("Incorrect password, try again.");
-						changePassword(fromUser); 
-					}
-				} catch (Exception e) {
-					System.out.println("Error, could not change password.");
-					changePassword(fromUser);
-				}
-			} else {
-				changePassword(fromUser); //If user does not enter either yes or no, they are asked the question again.
-			}
-		} catch (IOException e) {
-			System.out.println("Error, try again.");
-		}
-
-	}
-   
-	/**
-	 * This method resets the password of the account.
-	 * If the username and security code given by the user is equal to the username and 
-	 * security code of the account, the user is able to reset their password and the 
-	 * remainingLoginAttempts is reset to 3.
-	 * If the security code is not correct, a warning message is printed to the user.
-	 */
-	@Override
-	public void resetPassword(BufferedReader fromUser) {
-		System.out.print("Are you sure you want to reset password? ");
-		try {
-			String response = fromUser.readLine();
-			if (response.equals("no")) {
-				return;
-			} else if (response.equals("yes")) {
-				System.out.print("Please enter your username: ");
-				try {
-					String userName = fromUser.readLine();
-					System.out.print("Please enter your security code: ");
-					String securityCodeString = fromUser.readLine(); //user inputs the security code.
-					int securityCode = Integer.parseInt(securityCodeString);
-					
-					/*
-					 * If the username and security code is correct, the user is requested to enter 
-					 * a new password. This resets their password and resets the remaining 
-					 * login attempts. A message is also printed to inform the user of the 
-					 * successful change.
-					 */
-					if (userName.equals(this.getUserName()) && this.checkSecurityCode(securityCode)) {
-						System.out.print("Correct username and security code. Please enter new password: ");
-						try {
-							String newPassword = fromUser.readLine();
-							this.setPassword(newPassword);
-							this.setRemainingLoginAttempts(3);
-							System.out.println("Password successfully changed.");
-							
-						} catch (Exception e) {
-							System.out.println("Error, try again. ");
-							resetPassword(fromUser); 
-						}
-						
-					} else {
-						if (Integer.toString(securityCode).length() == 4) {
-							// If the input code is the correct length but does not match, it is incorrect.
-							System.out.println("Incorrect username and security code combination. ");
-							resetPassword(fromUser);
-							
-						} else {
-							// If the input code is the incorrect length, it is invalid.
-							System.out.println("Error, enter a four digit security code e.g 1234.");
-							resetPassword(fromUser);
-						}
-					}
-					
-				} catch (InputMismatchException e) {
-					// If the input code is not an integer, it is invalid.
-					System.out.println("Error, enter a four digit security code e.g 1234.");
-					resetPassword(fromUser);
-				}
-			
-			} else {
-				resetPassword(fromUser); //If user does not enter either yes or no, they are asked the question again.
-			}
-		} catch (IOException io) {
-			System.out.println("Error, try again.");
-		}
-		
-	}	
-
-	/**
-	 * This method changes the security code of the account.
-	 * First the method confirms that the user wants to change their security code. 
-	 * If the old security code matches the current security code, the security 
-	 * of the account is changed.
-	 * Otherwise, a warning message is printed to the user.
-	 * @param fromUser The input stream of the user.
-	 */
-	@Override	
-	public void changeSecurityCode(BufferedReader fromUser) {
-		System.out.print("Are you sure you want to change security code? ");
-		try {
-			String response = fromUser.readLine();
-			if (response.equals("no")) {
-				return;
-			} else if(response.equals("yes")) {
-				System.out.print("Please enter your current security code: ");
-				try {
-					String securityCodeString = fromUser.readLine();
-					int securityCode = Integer.parseInt(securityCodeString);
-					
-					/*
-					 * If the security code is correct, the user is requested to enter 
-					 * a new security code. This changes their security code. 
-					 * A message is also printed to inform the user of the successful change.
-					 */
-					if (this.checkSecurityCode(securityCode)) {
-						System.out.print("Correct security code. Please enter new security code: ");
-						int newSecurityCode = 0;
-						while (Integer.toString(newSecurityCode).length() != 4) {
-							try {
-								//Read the user input as a String.
-								String newSecurityCodeString = fromUser.readLine();
-								newSecurityCode = Integer.parseInt(newSecurityCodeString); 
-								if (newSecurityCodeString.length() == 4) {
-									// If the new input code is the correct length, it is set as the new security code.
-									this.setSecurityCode(newSecurityCode);
-									System.out.println("Security code successfully changed. ");
-								} else {
-									// If the new input code is the incorrect length, it is invalid.
-									System.out.print("Error, please create a four digit security code, e.g 1234: ");
-								}	
-							} catch (NumberFormatException e) {
-								// If the new input code is not in correct format, it is invalid.
-								System.out.print("Error, please create a four digit security code, e.g 1234: ");
-							}		
-						}
-					} else {
-						if (securityCodeString.length() == 4) {
-							// If the input code is the correct length but does not match, it is incorrect.
-							System.out.println("Incorrect security code. ");
-							changeSecurityCode(fromUser);
-							
-						} else {
-							// If the input code is the incorrect length, it is invalid.
-							System.out.println("Error, enter a four digit security code e.g 1234.");
-							changeSecurityCode(fromUser);
-						}
-					}
-				} catch(NumberFormatException e) {
-					// If the input code is the wrong format, it is invalid.
-					System.out.println("Error, enter a four digit security code e.g 1234.");
-					changeSecurityCode(fromUser);
-				}
-			} else {
-				changeSecurityCode(fromUser); //If user does not enter either yes or no, they are asked the question again.
-			}
-		} catch (Exception e) {
-			System.out.println("Error, could not change security code.");
-		}
-		
-	}	
-
-
-	/**
-	 * This method resets the security code of the account.
-	 * If the password given by the user is equal to the password of the account, 
-	 * the user is able to reset their security code.
-	 * If the password is not correct, a warning message is printed to the user.
-	 */
-	@Override
-	public void resetSecurityCode(BufferedReader fromUser) {
-		System.out.print("Are you sure you want to reset security code? ");
-		try {
-			String response = fromUser.readLine();
-			if (response.equals("no")) {
-				return;
-			} else if(response.equals("yes")) {
-				System.out.print("Please enter your password: ");
-				try {
-					String password = fromUser.readLine(); //user inputs the password.
-					
-					/*
-					 * If the password is correct, the user is requested to enter 
-					 * a new security code. This resets their security code. 
-					 * A message is also printed to inform the user of the successful change.
-					 */
-					if (this.checkPassword(password)) {
-						System.out.print("Correct password. Please enter new security code: ");
-						try {
-							//Read the user input as a String.
-							String newSecurityCodeString = fromUser.readLine(); 
-							int newSecurityCode = Integer.parseInt(newSecurityCodeString);
-							if (Integer.toString(newSecurityCode).length() == 4) {
-								// If the input code is the correct length, it is set as the new security code.
-								this.setSecurityCode(newSecurityCode);
-								System.out.println("Security code successfully changed. ");
-								
-							} else {
-								// If the input code is the incorrect length, it is invalid.
-								System.out.println("Error, enter a four digit security code e.g 1234.");
-								resetSecurityCode(fromUser);
-							}
-						} catch (NumberFormatException e) {
-							// If the new input code is not in correct format, it is invalid.
-							System.out.println("Error, please create a four digit security code, e.g 1234. ");
-							resetSecurityCode(fromUser);
-						}		
-					} else {
-						System.out.println("Incorrect password, try again.");
-						resetSecurityCode(fromUser); 
-					}
-					
-				} catch (IOException io) {
-					System.out.println("Error, try again. ");
-					resetSecurityCode(fromUser);
-				}
-			} else {
-				resetSecurityCode(fromUser); //If user does not enter either yes or no, they are asked the question again.
-			}
-		} catch (IOException e) {
-			System.out.println("Error, try again. ");
-		}
-		
-	}
+    public String changePassword(String oldPassword, String newPassword) {
+    	if (checkPassword(oldPassword)) {
+    		this.setPassword(newPassword);
+    		return "success";
+    	} else {
+    		return "failure";
+    	}
+    }	
 	
 	/**
 	 * This toString method defines how to print an Account object.
@@ -542,29 +267,5 @@ public class Account implements AccountInterface, Serializable{
 	public String toString() {
 		return " [ " + firstName + ", " + lastName + ", Username: " + userName + ", Email Address: "
 				+ email + ", Password: " + password + ", SecurityCode: " + securityCode +  " ]";
-	}
-
-	/**
-	 * Main method to test the methods.
-	 * REMEMBER TO DELETE THE MAIN METHOD!
-	 */
-	public static void main(String[] args) {
-		BufferedReader fromUser = new BufferedReader(new InputStreamReader(System.in));
-		Account test = new Account("John", "Smith", "JS", "js@bham", "password", 1234);
-//		System.out.println(test.checkPassword("password")); //Should return true
-//		System.out.println(test.checkPassword("hello")); //Should return false
-//		test.resetPassword(); //Reset password to hello
-//		System.out.println(test.checkPassword("password")); //Should return false
-//		System.out.println(test.checkPassword("hello")); //Should return true
-		
-//		test.login("hello"); //Incorrect, 2 attempts left
-//		test.login("hello"); //Incorrect, 1 attempt left
-//		test.login("hello"); //Incorrect, 0 attempts left. Forced to reset password.
-		
-//		test.resetSecurityCode(fromUser);
-		
-//		test.changePassword();
-		
-		test.changeSecurityCode(fromUser);	
 	}
 }
