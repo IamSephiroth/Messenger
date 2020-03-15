@@ -5,11 +5,15 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement; 
 
 /**
@@ -30,11 +34,8 @@ public class ClientManager implements Runnable {
 	private Socket client = null;
 	private ObjectOutputStream toClient;
 	private ObjectInputStream fromClient;
-	//	private Object input;
 	private String input; 
-	//	private String userID;
-	//	private InetAddress ipAddress;
-	//	private int userPort;
+	
 	// key is username, value is clientManager
 	private static HashMap<String, ClientManager> clientMap = 
 			new HashMap<String, ClientManager>();
@@ -48,12 +49,9 @@ public class ClientManager implements Runnable {
 	 * 
 	 * @param client Incoming socket from a particular client.
 	 */
-	public ClientManager(Socket client) {//, String userID, InetAddress ipAddress, int userPort) {
+	public ClientManager(Socket client) {
 		this.client = client;
-		//		this.userID = userID;
-		//		this.ipAddress = ipAddress;
-		//		this.userPort = userPort;
-		//		
+				
 	}
 
 	/**
@@ -79,9 +77,7 @@ public class ClientManager implements Runnable {
 	 * 
 	 */
 	public void run() {
-		//		ObjectOutputStream toClient;
-		//		ObjectInputStream fromClient;
-		//		Object input;
+		
 		try {
 			// what to send to/received from a client
 			toClient = new ObjectOutputStream(client.getOutputStream());
@@ -154,76 +150,7 @@ public class ClientManager implements Runnable {
 	}
 
 
-	//				// older version with infinite loop 
-	//				System.out.println("Got " + input + " from client");
-	//				/*
-	//				 * If an Account object is sent to the server, it gets stored
-	//				 * in the appropriate table of database.
-	//				 * Otherwise, the message is sent to the other people in the
-	//				 * chat and stored in the database.
-	//				 */
-	//				if (input instanceof Account) {
-	//					/*
-	//					 * This message is of type Account.
-	//					 * split message and store in database
-	//					 */ 
-	//					storeAccount((Account) input);
-	//					/*
-	//					 * Set target user if they are online.
-	//					 * Notify the client if they are offline.
-	//					 */
-	//					//				} else if (input instanceOf Destination) {
-	//					//					// receive destination info object(String, boolean)
-	//					//					if(input.isOnline()) {
-	//					//						destination = input.getUserName();
-	//					//					} else {
-	//					//						System.out.println("That user is not online.");
-	//					//					}
-	//					// if object of MessageHandler is input	
-	//				} else {
-	//					MessageHandler mh = (MessageHandler) fromClient.readObject();
-	//					//					String to = "1";
-	//					//					String from = "2";
-	//					//					String msg = "test message";
-	//					//					MessageHandler mh = new MessageHandler(to, from, msg);
-	//					/*
-	//					 * Send message's message to people in chat and store in DB.
-	//					 */
-	//					ClientManager target;
-	//					// TODO give target the appropriate value
-	//					// do not handle target in Server class, do it here
-	//					//String userName = destination;
-	//					//					if (userName != null) {
-	//					target = getClientManager(mh.getTo());
-	//					target.sendMessage(mh.getFrom(), mh.getMsg());
-	//					System.out.println("sending message...");
-	//				}
-	//			}
-	//			input = fromClient.readObject();			
-	//			//			}
-	//			/*
-	//			 * Close resources when the connection is over.
-	//			 */
-	//			toClient.close();
-	//			fromClient.close();
-	//			/*
-	//			 * Close Socket of this client.
-	//			 */
-	//			client.close();
-	//			System.out.println("Client has left the server.");
-	//		} catch (IOException io) {
-	//			System.out.println("Something went wrong. Ending service to client.");
-	//		} catch (ClassNotFoundException c) {
-	//			System.out.println("Something went wrong. Ending service to client.");
-	//		}
-	//	}
-
-
-
-	//	/**
-	//	 * Close connection.
-	//	 */
-	//	public void close() 
+ 
 	/**
 	 * TODO
 	 * 
@@ -244,71 +171,50 @@ public class ClientManager implements Runnable {
 			int securityCode = Integer.parseInt(securityCodeString);
 			addClient(userName, this);
 			
-		
 			
-			//TODO DB
-//			String firstName = input.getFirstName();
-//			String lastName = input.getLastName();
-//			String userName = input.getUserName();
-//			String email = input.getEmail();
-//			String password = input.getPassword();
-//			int securityCode = input.getSecurityCode();
-//			addClient(userName, this);
-			/*
-			 * Know which account this thread is handling.
-			 */		
+				Connection c = null;
+			    Statement stmt = null;
+			      try {
+			         Class.forName("org.postgresql.Driver");
+			         c.setAutoCommit(false);
+			         System.out.println("Opened database successfully");
+			         Connection connection;
+				     PreparedStatement preparedStatement;
+				     connection = DriverManager.getConnection("jdbc:postgresql://mod-msc-sw1.cs.bham.ac.uk/", "krishna", "08tgfexbf8");
+				     String SQLQuery = "INSERT INTO USERS(ID,FIRSTNAME,LASTNAME,PASSWORD,EMAIL,SECURITY_CODE, DATE)"
+				            + " VALUES (?, ?, ?, ?, ?, ?, ?)";
+				     preparedStatement = connection.prepareStatement(SQLQuery);
+				     Calendar calendar = Calendar.getInstance();
+				     java.sql.Date date = new java.sql.Date(calendar.getTime().getTime());
+	
+	
+				     preparedStatement.setString(1, userName);
+				     preparedStatement.setString(2, firstName);
+				     preparedStatement.setString(3, lastName);
+				     preparedStatement.setString(4, password);
+				     preparedStatement.setString(5, email);
+				     preparedStatement.setInt(6, securityCode);
+				     preparedStatement.setDate(7, date);
+	
+				     preparedStatement.executeQuery();
+			    
+			  
+				    stmt.close();
+			         c.commit();
+			         c.close();
+		      } catch (Exception e) {
+		         System.err.println( e.getClass().getName()+": "+ e.getMessage() );
+		         System.exit(0);
+		      }
+		      System.out.println("Records created successfully");
+		
 		}
-	/**
-	 * 
-	 * @return whether successfully logged in.
-	 */
-	//	private boolean login(String[] param) {
-	//		
-	//	}
-	//	private void sendPrivateChat(String[] param) {
-	//		sendMessage(param[1], param[2]);
-	//	}
-	/**
-	 * Return userName of this object.
-	 * 
-	 * @return
-	 */
+	
 		public String getUserName() {
 			// TODO 
 			return null;//this.getUserName();
 		}
-	//	/**
-	//	 * Check whether the user is logged in, if not, compare the username
-	//	 * and the password and log in if they match.
-	//	 * 
-	//	 * @param input
-	//	 * @return
-	//	 */
-	//	public boolean isLoggedIn(Account input) {
-	//		if (DB.username == input.getUserName() &&
-	//				DB.password == input.getPassword()) {
-	//			return true;
-	//		}
-	//	}
-	//	/**
-	//	 * Given Account object, register a new user.
-	//	 * 
-	//	 * @param input
-	//	 * @return whether the user is successfully registered.
-	//	 */
-	//	public boolean addUser(Account input) {
-	//		
-	//	}
-	//	/**
-	//	 * Given Account object, remove the user form the database.
-	//	 * 
-	//	 * @param input
-	//	 * @return whether the user is successfully removed.
-	//	 */
-	//	public boolean removeUser(Account input) {
-	//		
-	//	}
-	//	
+	
 	// TODO log in check
 	// TODO group chat
 
@@ -361,13 +267,42 @@ public class ClientManager implements Runnable {
 	public void login(String param) throws IOException {
 		String username;
 		String password;
+		String storedPassword = null;
 		String[] loginInfo = param.split("#");
 		username = loginInfo[0];
 		password = loginInfo[1];
+		String queryString;
+		queryString = "SELECT PASSWORD FROM USERS WHERE USERNAME =" + username;
 		
-		String storedPassword = "";
-		// storedPassword = -retrieve password for that user from database-
-			
+		Connection c = null;
+	    Statement stmt = null;
+	    try {
+	         Class.forName("org.postgresql.Driver");
+	         c = DriverManager
+	            .getConnection("jdbc:postgresql://mod-msc-sw1.cs.bham.ac.uk/",
+	            		 "krishna", "08tgfexbf8");
+	         c.setAutoCommit(false);
+	         System.out.println("Opened database successfully");
+	         
+
+	         stmt = c.createStatement();
+	         
+		     ResultSet rs = stmt.executeQuery(queryString);
+		     
+		     while ( rs.next() ) {
+		    	 storedPassword = rs.getString("password");
+		        }
+		        rs.close();
+		        stmt.close();
+		        c.close();
+		     } 
+	    catch ( Exception e ) {
+		        System.err.println( e.getClass().getName()+": "+ e.getMessage() );
+		        System.exit(0);
+		}
+		
+	    System.out.println("Operation done successfully");
+  			
 		if(password.equals(storedPassword)) {
 			// loggedIn = true;
 			toClient.writeUTF("success");
@@ -495,6 +430,7 @@ public class ClientManager implements Runnable {
 //	public void sendOnlineArray() {
 //		-send array to all logged in clients- broadcast
 //	}
+	
 //	/**
 //	 * Send message input to the current client.
 //	 * Call this method on the target(destination) client.
@@ -509,41 +445,6 @@ public class ClientManager implements Runnable {
 //		msg = loginInfo[1];
 //		
 //	}
-	//		PrintWriter out;
-	//		try {		
-	//			out = new PrintWriter(input);
-	//			out.println(input);
-	//			out.flush();
-	//		} catch (IOException e) {
-	//			/*
-	//			 * Show error message.
-	//			 */
-	//			System.out.println("Error in sendMessage");
-	//			e.printStackTrace();
-	//		}
+	
 }
-//	/**
-//	 * 1.load JDBC driver(generate Class object)
-//	 */
-//	Class.forName();
-//	/**
-//	 * 2. Establish connection with database.
-//	 */
-//	DriverManager.getConnection();
-//	/**
-//	 * 3. Send SQL statement.
-//	 */
-//	executeQuery();
-//	executeUpdate();
-//	/**
-//	 * Obtain result from the database.
-//	 */
-//	ResultSet result = new ResultSet();
-//	/**
-//	 * 5. Terminate connection with the database.
-//	 * close
-//	 */
-//	connection.close();
-//	executeQuery.close();
-//	executeUpdate.close();
-//	result.close();
+
