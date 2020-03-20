@@ -1,7 +1,6 @@
-import static org.junit.jupiter.api.Assertions.*;
+package GUI;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,8 +11,6 @@ import org.junit.jupiter.api.Test;
  *
  */
 class AccountTest {
-	//BufferedReader that will be used in tests that require user input
-	private BufferedReader fromUser = new BufferedReader(new InputStreamReader(System.in));
 	//Two account objects that will be used in the tests.
 	private Account test1;
 	private Account test2;
@@ -25,7 +22,7 @@ class AccountTest {
 	@BeforeEach
 	public void beforeEach() {
 		test1 = new Account("John", "Smith", "JS", "js@bham", "password", 1234);
-		test2 = new Account("Mary", "Anderson", "M_Anderson", "ma@bham", "MaRyAnDeRsOn", 0000);
+		test2 = new Account("Mary", "Anderson", "M_Anderson", "ma@bham", "MaRyAnDeRsOn", 1111);
 	}
 	
 	/**
@@ -77,7 +74,7 @@ class AccountTest {
 		int actualSecurityCode1 = test1.getSecurityCode();
 		assertEquals(expectedSecurityCode1, actualSecurityCode1, "Error, expected security code does not equal actual security code.");
 		
-		int expectedSecurityCode2 = 0000;
+		int expectedSecurityCode2 = 1111;
 		int actualSecurityCode2 = test2.getSecurityCode();
 		assertEquals(expectedSecurityCode2, actualSecurityCode2, "Error, expected security code does not equal actual security code.");
 		
@@ -185,33 +182,20 @@ class AccountTest {
 	}
 	
 	/**
-	 * The following set of tests test the login method
+	 * The following set of tests test the isOnline method
 	 */
 	@Test
-	void testLogin() {
-		test1.login("wrongPassword");
-		assertFalse(test1.isLoggedIn()); //Incorrect password
-		test1.login("wrongPassword1");
-		assertFalse(test1.isLoggedIn()); //Incorrect password
-		int expected1a = 1;
-		int actual1a = test1.getRemainingLoginAttempts();
-		assertEquals(expected1a, actual1a, "Error, expected log in attempts does not equal actual log in attempts.");
-		test1.login("password");
-		assertTrue(test1.isLoggedIn()); //Correct password
-		int expected1b = 3;
-		int actual1b = test1.getRemainingLoginAttempts();
-		assertEquals(expected1b, actual1b, "Error, expected log in attempts does not equal actual log in attempts.");
+	void testIsOnline() {
+		test1.setLoggedIn(true);
+		test2.setLoggedIn(false);
 		
-		test2.login("wrongPassword");
-		assertFalse(test2.isLoggedIn()); //Incorrect password
-		test2.login("wrongPassword1");
-		assertFalse(test2.isLoggedIn()); //Incorrect password
-		test2.login("wrongPassword2");
-		assertFalse(test2.isLoggedIn()); //Incorrect password
-		int expected2a = 0;
-		int actual2a = test2.getRemainingLoginAttempts();
-		assertEquals(expected2a, actual2a, "Error, expected log in attempts does not equal actual log in attempts.");
+		boolean expectedOnline1 = true;
+		boolean actualOnline1 = test1.isOnline();
+		assertEquals(expectedOnline1, actualOnline1, "Error, expected loggedIn does not equal actual loggedIn.");
 		
+		boolean expectedOnline2 = false;
+		boolean actualOnline2 = test2.isOnline();
+		assertEquals(expectedOnline2, actualOnline2, "Error, expected loggedIn does not equal actual loggedIn.");
 	}
 	
 	/**
@@ -229,7 +213,7 @@ class AccountTest {
 		
 		test2.logout();
 		boolean expectedLoggedIn2 = false;
-		boolean actualLoggedIn2 = test1.isLoggedIn();
+		boolean actualLoggedIn2 = test2.isLoggedIn();
 		assertEquals(expectedLoggedIn2, actualLoggedIn2, "Error, expected loggedIn does not equal actual loggedIn.");
 	}
 	
@@ -298,7 +282,7 @@ class AccountTest {
 		assertEquals(expected1, actual1, "Error, expected does not equal actual.");
 		
 		boolean expected2 = true;
-		boolean actual2 = test2.checkSecurityCode(0000);
+		boolean actual2 = test2.checkSecurityCode(1111);
 		assertEquals(expected2, actual2, "Error, expected does not equal actual.");
 	}
 	
@@ -307,31 +291,37 @@ class AccountTest {
 	 */
 	@Test
 	void testChangePassword() {
+		String expected1 = "success";
+		String actual1 = test1.changePassword("password", "newPassword");
+		assertEquals(expected1, actual1, "Error, expected does not equal actual.");
+		boolean expected1a = true;
+		boolean actual1a = test1.checkPassword("newPassword");
+		assertEquals(expected1a, actual1a, "Error, expected does not equal actual.");
+		
+		String expected2 = "failure";
+		String actual2 = test2.changePassword("MaRyANDeRsOn", "newPassword");
+		assertEquals(expected2, actual2, "Error, expected does not equal actual.");
+		boolean expected2a = false;
+		boolean actual2a = test2.checkPassword("newPassword");
+		assertEquals(expected2a, actual2a, "Error, expected does not equal actual.");
+		boolean expected2b = true; 
+		boolean actual2b = test2.checkPassword("MaRyAnDeRsOn");
+		assertEquals(expected2b, actual2b, "Error, expected does not equal actual.");
 		
 	}
 	
 	/**
-	 * The following set of tests test the resetPasword method
+	 * The following set of tests test the toString method
 	 */
 	@Test
-	void testResetPassword() {
+	void testToString() {
+		String expected1 = " [ John, Smith, Username: JS, Email Address: js@bham, Password: password, SecurityCode: 1234 ]";
+		String actual1 = test1.toString();
+		assertEquals(expected1, actual1, "Error, expected does not equal actual.");
 		
+		String expected2 = " [ Mary, Anderson, Username: M_Anderson, Email Address: ma@bham, Password: MaRyAnDeRsOn, SecurityCode: 1111 ]";
+		String actual2 = test2.toString();
+		assertEquals(expected2, actual2, "Error, expected does not equal actual.");
 	}
 	
-	/**
-	 * The following set of tests test the changeSecurityCode method
-	 */
-	@Test
-	void testChangeSecurityCode() {
-		
-	}
-	
-	/**
-	 * The following set of tests test the resetSecurityCode method
-	 */
-	@Test
-	void testresetSecurityCode() {
-		
-	}
-
 }
