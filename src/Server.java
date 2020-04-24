@@ -28,7 +28,7 @@ public class Server {
 	    ObjectInputStream fromClient;
 		Socket client = null;
 		// List of currently online clients.
-		//ArrayList<Socket> clients = new ArrayList<Socket>();
+		// ArrayList<Socket> clients = new ArrayList<Socket>();
 		// ClientManager know about client sockets as well.
 		ArrayList<ClientManager> clientManagers = new ArrayList<ClientManager>();
 		
