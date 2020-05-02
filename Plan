@@ -5,5 +5,8 @@ draw UML
 design tests
  * unit tests
  * integration test
+design protocol
+ * use JSON
+establish client-server communication
 execute the tests
 make new plan

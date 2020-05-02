@@ -5,6 +5,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * This Client class creates a Client on the command line using 

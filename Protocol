@@ -1,0 +1,88 @@
+ draft protocol
+ 
+ "command"s becomes the classes in JSON?
+
+   - logInOrSignUp
+{
+  "command": "log in",
+  "command": "sign up"
+}
+   - sign up (H)
+{
+  "firstName": "Sephiroth",
+  "lastName": "Crescent",
+  "username": "IamSephiroth",
+  "email": "sephiroth@gmail.com",
+  "password": "SephirothPass"
+}
+   - log in (H)
+{
+  "username": "Sephiroth",
+  "password": "SephirothPass",
+}
+   - log out (M)
+{
+  "command": "log out",
+}
+   - change username (L)
+{
+  "command": "change username",
+  "newUsername": "IwasSephiroth"
+}
+   - change email address (L) 
+{
+  "newEmail": "2ndSephiroth@gmail.com"
+}
+   - change password (L)
+{
+  "newPassword": "2ndSephirothPass"
+}
+   - add a friend (H)
+{
+  "command": "add a friend",
+  "friendName": "IamCloud"
+}
+   - block user (M)
+{
+  "command": "block user",
+  "userToBlock": "IamCloud"
+}
+   - send one to one message (H)
+{
+  "command": "1to1",
+  "recipient": "IamCloud",
+  "message": "Good boy, Cloud.",
+}
+   - create a group chat (M)
+{
+  "command": "group chat",
+  "groupName": "Avalanche"
+}
+   - join a group chat (M)
+{
+  "command": "join a group",
+  "groupName": "Avalanche"
+}
+   - add a user in a group chat (M)
+{
+  "command": "add to group",
+  "groupName": "Avalanche"
+  "userToAdd": "IamCloud"
+}
+   - remove user from a group chat (M)
+{
+  "command": "remove from group",
+  "groupName": "Avalanche"
+  "userToRemove": "IamCloud"
+}
+   - make another person admin as well (only done by admin users) (L) 
+{
+  "command": "add admin",
+  "groupName": "Avalanche"
+  "userToAdd": "IamCloud"
+}
+   - search messages (L) 
+{
+  "command": "search message",
+  "StringToSearch": "Good boy, Cloud."
+}

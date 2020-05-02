@@ -9,15 +9,16 @@ import java.util.TreeSet;
 
 /**
  * This class contains the main method.
- * 	 * accept connevtion from client and pass th econnection to the ClientManager.
+ * Accept connection from client and pass the connection to a new instance of
+ * ClientManager.
  * 
  *
  */
 public class Server {
-//	private Set<Socket> clients = new HashSet<Socket>();
-//	private Map<String, Socket> clients = new HashMap<String, Socket>();
-	
-    /**
+	//	private Set<Socket> clients = new HashSet<Socket>();
+	//	private Map<String, Socket> clients = new HashMap<String, Socket>();
+
+	/**
 	 * Setup a ServerSocket in the Server class.
 	 * 
 	 * 
@@ -25,21 +26,21 @@ public class Server {
 	 */
 	public static void main(String[] args) {
 		ObjectOutputStream toClient;
-	    ObjectInputStream fromClient;
+		ObjectInputStream fromClient;
 		Socket client = null;
 		// List of currently online clients.
 		// ArrayList<Socket> clients = new ArrayList<Socket>();
 		// ClientManager know about client sockets as well.
 		ArrayList<ClientManager> clientManagers = new ArrayList<ClientManager>();
-		
-			ServerSocket serverSocket = null;
+
+		ServerSocket serverSocket = null;
 		try {
 			/*
 			 *  Instantiate ServerSocket object.
 			 */
 			serverSocket = new ServerSocket(50000);
 			System.out.println("Waiting for a client.");
-			
+
 			//acceptClients();
 		} catch (IOException e) {
 			System.err.println("could not listen on port: " + 50000);
@@ -75,47 +76,47 @@ public class Server {
 				 * Listen to message form server and check which account the thread handles.
 				 * Send the message to all other objects of ClientManager.
 				 */
-				
+
 			}
 		} catch (Exception e) {
-				try {
-					/*
-					 *  Close the connection from server end.
-					 */
-					serverSocket.close();
-				} catch (IOException io) {
-					System.out.println("Could not close serverSocket" + io.getMessage());
-				}
+			try {
+				/*
+				 *  Close the connection from server end.
+				 */
+				serverSocket.close();
+			} catch (IOException io) {
+				System.out.println("Could not close serverSocket" + io.getMessage());
 			}
 		}
-	
+	}
+
 	/**
 	 * Miyo added
 	 */
-//	public static Server instance;
-//	private ArrayList<ChatRoom> activeRooms;
-//	private ArrayList<Client> activeUsers;
-//	/**
-//	 * Returns Server instance, generate one if it does not exist.
-//	 * 
-//	 * @return
-//	 */
-//	public static Server getInstance() {
-//		if (instance == null) {
-//			instance = new Server();
-//		}
-//		return instance;
-//	}
-//	
-//	public Server() {
-//		activeRooms = new ArrayList<ChatRoom>();
-//		activeUsers = new ArrayList<Client>();
-//	}
+	//	public static Server instance;
+	//	private ArrayList<ChatRoom> activeRooms;
+	//	private ArrayList<Client> activeUsers;
+	//	/**
+	//	 * Returns Server instance, generate one if it does not exist.
+	//	 * 
+	//	 * @return
+	//	 */
+	//	public static Server getInstance() {
+	//		if (instance == null) {
+	//			instance = new Server();
+	//		}
+	//		return instance;
+	//	}
+	//	
+	//	public Server() {
+	//		activeRooms = new ArrayList<ChatRoom>();
+	//		activeUsers = new ArrayList<Client>();
+	//	}
 }
 
-	/**
-	 * Wait for a client to connect. 
-	 */
+/**
+ * Wait for a client to connect. 
+ */
 //	public static void acceptClients() {
 //		clients = new ArrayList<Client>();
 //		while (true) {
@@ -130,10 +131,10 @@ public class Server {
 //			}
 //		}
 //	}
-    /**
-     * This closeConnection method is like a finalise method, it closes all of the 
-     * streams and ends the connection with a client.
-     */
+/**
+ * This closeConnection method is like a finalise method, it closes all of the 
+ * streams and ends the connection with a client.
+ */
 //    public static void closeConnection() {
 //    	// Close the streams
 //        try {

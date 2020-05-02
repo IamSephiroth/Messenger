@@ -9,7 +9,7 @@ Functions
  * change email address
  * change password
  * add friend
- * block user
+ * block user (remove from friend list)
  * one to one message
  * group chat
  * invite user in a group chat
