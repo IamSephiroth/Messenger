@@ -1,10 +1,13 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.io.InputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Scanner;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -16,13 +19,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * 
  * This class may make use of code provided in lectures and previous worksheets.
  * @author Kishan Patel
+ * @version 2020-05-04
  */
 public class Client {
 
     private Socket server;
     private BufferedReader fromUser;
-    private ObjectOutputStream toServer;
-    private ObjectInputStream fromServer;
+    private OutputStream toServer;
+    private InputStream fromServer;
     private Account user;
 
     /**
@@ -38,8 +42,8 @@ public class Client {
     		
     		// Set up the streams to send and receive messages to and from the server.
     		fromUser = new BufferedReader(new InputStreamReader(System.in));
-        	toServer = new ObjectOutputStream(server.getOutputStream());
-        	fromServer = new ObjectInputStream(server.getInputStream());
+        	toServer = server.getOutputStream();
+        	fromServer = server.getInputStream();
         	
         	System.out.println("Connected to " + serverName);
         	
@@ -144,9 +148,9 @@ public class Client {
     	 */
     	try {
         	if (user.getRemainingLoginAttempts() == 0) {
-        		user.resetPassword(fromUser);
-        		toServer.reset();
-        		toServer.writeObject(user);
+//        		user.resetPassword(fromUser);
+//        		toServer.reset();
+        		//toServer.writeObject(user);
         	}
     	} catch (Exception e) {
     		System.out.println("Error, try again.");
@@ -156,62 +160,41 @@ public class Client {
     
     /**
      * This method makes the Client create a new account.
+     * @throws IOException 
      */
-    public void signUp() {
-    	// Initialise user object 
-    	user = new Account(null, null, null, null, null, 0);
-    	System.out.println("Create new account.");
-    	try {
-			System.out.print("Please enter your first name: ");
-			user.setFirstName(fromUser.readLine());
-			System.out.print("Please enter your last name: ");
-			user.setLastName(fromUser.readLine());
-			System.out.print("Please create your username: ");
-			user.setUserName(fromUser.readLine());
-			System.out.print("Please enter your email address: ");
-			user.setEmail(fromUser.readLine());
-			System.out.print("Please create your password: ");
-			user.setPassword(fromUser.readLine());
-			System.out.print("Please create your security code: ");
-			/*
-			 * This while loop ensures that the security code is made up of four 
-			 * numerical digits.
-			 */
-			while (Integer.toString(user.getSecurityCode()).length() != 4) {
-				try {
-					//Read the user input as a String.
-					String securityCode = fromUser.readLine(); 
-					try {
-						/*
-						 *  Parse the input as an Integer. Then check its length. If the length is 4, the 
-						 *  account is successfully created. Otherwise there is an error and it has to be 
-						 *  input again.
-						 *  If the user input cannot be parsed as an Integer, again the Client gets an error 
-						 *  and has to input the code again.
-						 */
-						user.setSecurityCode(Integer.parseInt(securityCode)); 
-						if (securityCode.length() == 4) {
-							System.out.println("Account successfully created.");
-						} else {
-							System.out.print("Error, please create a four digit security code, e.g 1234: ");
-						}
-					} catch (NumberFormatException e) {
-						System.out.print("Error, please create a four digit security code, e.g 1234: ");
-					}
-				} catch (Exception e) {
-					System.out.print("Error, please create a four digit security code, e.g 1234: ");
-				}
-			}
-			user.setLoggedIn(true);
-    		user.setRemainingLoginAttempts(3);
-    		toServer.reset(); //Reset outputStream to clear cache.
-    		toServer.writeObject(user);
-    //		toServer.writeUTF(user.toString());
-    	} catch(Exception e) {
-    		System.err.println("Error, try again. ");
-    		closeConnection();
-    	} 
-    }
+    public void signUp() throws IOException {
+		/*
+		 * Create an instance of SignUp to make JSON format String.
+		 * Pass this string to the server to communicate.
+		 */
+		SignUp su = new SignUp();
+		Scanner s = new Scanner(System.in);
+		System.out.println("first name:");
+		su.setFirstName(s.next());
+		System.out.println("last name:");
+		su.setLastName(s.next());
+		System.out.println("username:");
+		su.setUsername(s.next());
+		System.out.println("email address:");
+		su.setEmail(s.next());
+		System.out.println("password:");
+		su.setPassword(s.next());
+		s.close();
+		/*
+		 * Convert SignUp object to JSON String.
+		 */
+		ObjectMapper om = new ObjectMapper();
+		try {
+			String json = om.writeValueAsString(su);
+			System.out.println(json);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		/*
+		 * Send sign up message to the server.
+		 */
+		su.send(toServer);
+	}
     
     /**
      * This method asks the Client to confirm if they want to logout or not.
@@ -229,8 +212,8 @@ public class Client {
 			} else if (response.equals("yes")) {
 				user.logout();
 				System.out.println("Logged out!");
-				toServer.reset(); //Reset outputStream to clear cache.
-    			toServer.writeObject(user); // After the user logs out, their account gets sent to server.
+//				toServer.reset(); //Reset outputStream to clear cache.
+//    			toServer.writeObject(user); // After the user logs out, their account gets sent to server.
 //				closeConnection();
 			} else {
 				logout();
@@ -257,8 +240,8 @@ public class Client {
 			} else if (response.equals("yes")) {
 				user.deleteAccount();
 				System.out.println("Account Deleted!");
-				toServer.reset(); //Reset outputStream to clear cache.
-    			toServer.writeObject(user); // After the user deletes their account, it gets sent to server to be deleted from the database.
+//				toServer.reset(); //Reset outputStream to clear cache.
+//    			toServer.writeObject(user); // After the user deletes their account, it gets sent to server to be deleted from the database.
 //				closeConnection();
 			} else {
 				deleteAccount();
@@ -283,21 +266,21 @@ public class Client {
         	String messageToSend = "";
         	while (!messageToSend.equals("logout") && !messageToSend.equals("delete account") ) {
         		if(messageToSend.equals("change password")) {
-        			user.changePassword(fromUser);
-        			toServer.reset(); //Reset outputStream to clear cache.
-        			toServer.writeObject(user); // After the user changes their password, their account gets sent to server.
+//        			user.changePassword(fromUser);
+//        			toServer.reset(); //Reset outputStream to clear cache.
+//        			toServer.writeObject(user); // After the user changes their password, their account gets sent to server.
         		} else if(messageToSend.equals("change security code")) {
-        			user.changeSecurityCode(fromUser);
-        			toServer.reset(); //Reset outputStream to clear cache.
-        			toServer.writeObject(user); // After the user changes their security code, their account gets sent to server.
+//        			user.changeSecurityCode(fromUser);
+//        			toServer.reset(); //Reset outputStream to clear cache.
+//        			toServer.writeObject(user); // After the user changes their security code, their account gets sent to server.
         		} else if(messageToSend.equals("reset security code")) {
-        			user.resetSecurityCode(fromUser);
-        			toServer.reset(); //Reset outputStream to clear cache.
-        			toServer.writeObject(user); // After the user changes their security code, their account gets sent to server.
+//        			user.resetSecurityCode(fromUser);
+//        			toServer.reset(); //Reset outputStream to clear cache.
+//        			toServer.writeObject(user); // After the user changes their security code, their account gets sent to server.
         		}
         		System.out.print(user.getUserName() + ": ");
         		messageToSend = fromUser.readLine();
-        		toServer.writeObject(user.getUserName() + ": " + messageToSend);
+//        		toServer.writeObject(user.getUserName() + ": " + messageToSend);
         	}
         	if (messageToSend.equals("logout")) {
         		logout();
@@ -327,11 +310,9 @@ public class Client {
 	public void receiveMessages() {
 		while (user.isLoggedIn()) {
 			try {
-				Object msg = fromServer.readObject();
-				System.out.println("Received: " + msg);
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				byte[] b = new byte[2048];
+				int length = fromServer.read(b);
+				System.out.println("Received: " + b);
 			} catch (IOException e) {
 				System.out.println("Could not receive message.");
 			}

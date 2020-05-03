@@ -1,6 +1,6 @@
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -32,17 +32,17 @@ import java.sql.Statement;
  */
 public class ClientManager implements Runnable {
 	private Socket client = null;
-	private ObjectOutputStream toClient;
-	private ObjectInputStream fromClient;
+	private OutputStream toClient;
+	private InputStream fromClient;
 	private String input; 
-	
+
 	// key is username, value is clientManager
 	private static HashMap<String, ClientManager> clientMap = 
 			new HashMap<String, ClientManager>();
 	private static DBIface db = null;
 	// TODO add users to activeUser they they login and remove when they log out.
-//	private static ArrayList<ClientManager> activeUsers =
-//			new ArrayList<ClientManager>();
+	//	private static ArrayList<ClientManager> activeUsers =
+	//			new ArrayList<ClientManager>();
 
 	/**
 	 * Constructor of ClientManager class.
@@ -52,7 +52,7 @@ public class ClientManager implements Runnable {
 	 */
 	public ClientManager(Socket client) {
 		this.client = client;
-				
+
 	}
 
 	/**
@@ -67,7 +67,7 @@ public class ClientManager implements Runnable {
 		return db;
 	}
 	public static void setDB(DBIface dbi) {
-		 db = dbi;
+		db = dbi;
 	}
 	/**
 	 * Add a new user name and ClientManager object generated on the user
@@ -84,11 +84,11 @@ public class ClientManager implements Runnable {
 	 * 
 	 */
 	public void run() {
-		
+
 		try {
 			// what to send to/received from a client
-			toClient = new ObjectOutputStream(client.getOutputStream());
-			fromClient = new ObjectInputStream(client.getInputStream());
+			toClient = client.getOutputStream();
+			fromClient = client.getInputStream();
 			input = (String) fromClient.readObject();
 			//			/*
 			//			 * show message that we got input, while we have input form the client
@@ -143,7 +143,7 @@ public class ClientManager implements Runnable {
 					broadcast(param);
 					break;
 				case "8":
-//					searchChat(param);
+					//					searchChat(param);
 					break;
 				default:
 					System.out.println("Invalid command.");
@@ -157,35 +157,42 @@ public class ClientManager implements Runnable {
 	}
 
 
- 
+
 	/**
-	 * TODO
+	 * Given an SignUp object, sign up the account with the database.
+	 * XXX this has a security hole.
 	 * 
-	 * @param input account info.
+	 * @param su account info.
 	 */
-		private void signUp(String input) {
-			/*
-			 * Split the Account info first name and last name etc,
-			 * and store in database.
-			 */
-			String[] accountDetail = input.split("#");
-			String firstName = accountDetail[0];
-			String lastName = accountDetail[1];
-			String userName = accountDetail[2];
-			String email = accountDetail[3];
-			String password = accountDetail[4];
-			String securityCodeString = accountDetail[5];
-			int securityCode = Integer.parseInt(securityCodeString);
-			addClient(userName, this);
-			getDB().signUp(userName, firstName, lastName, password, email,
-					securityCode);
-		}
-	
-		public String getUserName() {
-			// TODO 
-			return null;//this.getUserName();
-		}
-	
+	public void signUp(SignUp su) {
+
+		addClient(su.getUsername(), this);
+		getDB().signUp(su.getUsername(), su.getFirstName(),
+				su.getLastName(),su.getPassword(), su.getEmail(), -1);
+		//class SignUpReply implements StoC
+		SignUpReply sur = new SignUpReply();
+		sur.send(toClient);
+		
+		//			/*
+		//			 * Split the Account info first name and last name etc,
+		//			 * and store in database.
+		//			 */
+		//			String[] accountDetail = input.split("#");
+		//			String firstName = accountDetail[0];
+		//			String lastName = accountDetail[1];
+		//			String userName = accountDetail[2];
+		//			String email = accountDetail[3];
+		//			String password = accountDetail[4];
+		//			String securityCodeString = accountDetail[5];
+		//			int securityCode = Integer.parseInt(securityCodeString);
+
+	}
+
+	public String getUserName() {
+		// TODO 
+		return null;//this.getUserName();
+	}
+
 	// TODO log in check
 	// TODO group chat
 
@@ -215,7 +222,7 @@ public class ClientManager implements Runnable {
 			System.out.println("Error: sendMessage");
 		}
 	}
-	
+
 	/**
 	 * Broadcast message to all users currently logged in.
 	 * 
@@ -226,13 +233,13 @@ public class ClientManager implements Runnable {
 
 		String sender = this.getUserName();
 		String msg = msgInfo[1];
-//		Iterator<ClientManager> iter = new Iterator<ClientManager>(clientMap);
-//		while (iter.hasNext()) {
-//			iter.next();
+		//		Iterator<ClientManager> iter = new Iterator<ClientManager>(clientMap);
+		//		while (iter.hasNext()) {
+		//			iter.next();
 		clientMap.forEach((username, clientManager) -> {clientManager.sendMessage(sender, msg);});
-//		ClientManager target = getClientManager(sender);
-//			target.sendMessage(sender, msg);
-		}
+		//		ClientManager target = getClientManager(sender);
+		//			target.sendMessage(sender, msg);
+	}
 
 	public void login(String param) throws IOException {
 		String username;
@@ -241,27 +248,27 @@ public class ClientManager implements Runnable {
 		String[] loginInfo = param.split("#");
 		username = loginInfo[0];
 		password = loginInfo[1];
-  		if (getDB().login(username, password)) {
+		if (getDB().login(username, password)) {
 			// loggedIn = true;
 			toClient.writeUTF("success");
 		}
 		else
 			toClient.writeUTF("failure");	
 	}
-	
+
 	public void changePassword(String param) {
 		String username;
 		String currentPassword;
 		String newPassword;
-		
+
 		String[] info = param.split("#");
 		username = info[0];
 		currentPassword = info[1];
 		newPassword = info[2];
-		
+
 		String storedPassword = "";
 		// storedPassword = -retrieve password for that user from database-  
-		
+
 		if(currentPassword.equals(storedPassword)) {
 			// query to update password of the user in database
 			try {
@@ -279,22 +286,22 @@ public class ClientManager implements Runnable {
 				e.printStackTrace();
 			} 
 		}
-		
+
 	}
-	
+
 	public void resetPassword(String param) throws IOException {
 		String username;
 		String securitycode;
 		String newPassword;
-		
+
 		String[] info = param.split("#");
 		username = info[0];
 		securitycode = info[1];
 		newPassword = info[2];
-		
+
 		String storedSecuritycode = "";
 		// storedPassword = -retrieve password for that user from database-
-		
+
 		if(securitycode.equals(storedSecuritycode)) {
 			// query to update security code in database
 			toClient.writeUTF("success");
@@ -303,20 +310,20 @@ public class ClientManager implements Runnable {
 			toClient.writeUTF("failure");
 		}
 	}
-	
+
 	public void changeSecurityCode(String param) throws IOException {
 		String username;
 		String currentSecurityCode;
 		String newSecurityCode;
-		
+
 		String[] info = param.split("#");
 		username = info[0];
 		currentSecurityCode = info[1];
 		newSecurityCode = info[2];
-		
+
 		String storedSecurityCode = "";
 		// storedSecurityCode = -retrieve code for that user from database-  
-		
+
 		if(currentSecurityCode.equals(storedSecurityCode)) {
 			// query to update code of the user in database
 			toClient.writeUTF("success");
@@ -324,22 +331,22 @@ public class ClientManager implements Runnable {
 		else {
 			toClient.writeUTF("failure"); 
 		}
-		
+
 	}
-	
+
 	public void resetSecurityCode(String param) throws IOException {
 		String username;
 		String password;
 		String newSecurityCode;
-		
+
 		String[] info = param.split("#");
 		username = info[0];
 		password = info[1];
 		newSecurityCode = info[2];
-		
+
 		String storedPassword = "";
 		// storedPassword = -retrieve password for that user from database-
-		
+
 		if(password.equals(storedPassword)) {
 			// query to update security code in database
 			toClient.writeUTF("success");
@@ -348,42 +355,42 @@ public class ClientManager implements Runnable {
 			toClient.writeUTF("failure");
 		}
 	}
-	
+
 	public void logOut(String param) {
 		String username;
-		
+
 		String[] input = param.split("#", 0);
 		username = input[0];
 		// remove user from online list
-		
+
 	}
-	
+
 	public void deleteAccount(String param) {
 		String username;
 		String[] input = param.split("#", 0);
 		username = input[0];
 		// remove user Account from database.
 	}
-	
-//	public void sendOnlineArray() {
-//		-send array to all logged in clients- broadcast
-//	}
-	
-//	/**
-//	 * Send message input to the current client.
-//	 * Call this method on the target(destination) client.
-//	 * 
-//	 * @param input message to the target.
-//	 */
-//	public void sendMessage(String param) {
-//		String recepient;
-//		String msg;
-//		String[] loginInfo = param.split("#", 0);
-//		recepient = loginInfo[0];
-//		msg = loginInfo[1];
-//		
-//	}
-	
+
+	//	public void sendOnlineArray() {
+	//		-send array to all logged in clients- broadcast
+	//	}
+
+	//	/**
+	//	 * Send message input to the current client.
+	//	 * Call this method on the target(destination) client.
+	//	 * 
+	//	 * @param input message to the target.
+	//	 */
+	//	public void sendMessage(String param) {
+	//		String recepient;
+	//		String msg;
+	//		String[] loginInfo = param.split("#", 0);
+	//		recepient = loginInfo[0];
+	//		msg = loginInfo[1];
+	//		
+	//	}
+
 }
 
 

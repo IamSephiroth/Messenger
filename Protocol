@@ -2,19 +2,22 @@
  
  "command"s becomes the classes in JSON?
 
-   - logInOrSignUp
-{
-  "command": "log in",
-  "command": "sign up"
-}
+
    - sign up (H)
 {
+  "command": "sign up",
   "firstName": "Sephiroth",
   "lastName": "Crescent",
   "username": "IamSephiroth",
   "email": "sephiroth@gmail.com",
   "password": "SephirothPass"
 }
+
+   - sign up reply (H)
+{
+  "command": "sign up reply",
+  "status": integer
+}  
    - log in (H)
 {
   "username": "Sephiroth",

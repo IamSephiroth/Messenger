@@ -25,8 +25,8 @@ public class Server {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		ObjectOutputStream toClient;
-		ObjectInputStream fromClient;
+		OutputStream toClient;
+		InputStream fromClient;
 		Socket client = null;
 		// List of currently online clients.
 		// ArrayList<Socket> clients = new ArrayList<Socket>();
