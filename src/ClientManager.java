@@ -23,7 +23,6 @@ import java.sql.Statement;
  * TODO register new user
  * TODO login existing user
  * TODO send message to the right client
- * TODO Client get message only after sending one -> fix it.
  * 
  * @author Miyo Takahashi
  * @version 2020-03-17
@@ -31,13 +30,13 @@ import java.sql.Statement;
  * @param <E>
  */
 public class ClientManager implements Runnable {
-	private Socket client = null;
+	private Socket clientSocket = null;
 	private OutputStream toClient;
 	private InputStream fromClient;
-	private String input; 
+	
 
 	// key is username, value is clientManager
-	private static HashMap<String, ClientManager> clientMap = 
+	private static HashMap<String, ClientManager> activeUsers = 
 			new HashMap<String, ClientManager>();
 	private static DBIface db = null;
 	// TODO add users to activeUser they they login and remove when they log out.
@@ -50,8 +49,8 @@ public class ClientManager implements Runnable {
 	 * 
 	 * @param client Incoming socket from a particular client.
 	 */
-	public ClientManager(Socket client) {
-		this.client = client;
+	public ClientManager(Socket clientSocket) {
+		this.clientSocket = clientSocket;
 
 	}
 
@@ -61,7 +60,7 @@ public class ClientManager implements Runnable {
 	 * @return Object of ClientManager.
 	 */
 	public static ClientManager getClientManager(String userName) {
-		return clientMap.get(userName);
+		return activeUsers.get(userName);
 	}
 	public static DBIface getDB() {
 		return db;
@@ -71,121 +70,60 @@ public class ClientManager implements Runnable {
 	}
 	/**
 	 * Add a new user name and ClientManager object generated on the user
-	 * to clientMap.
+	 * to activeUsers.
 	 * 
 	 * @param userName unique user name to the user.
 	 * @param cm ClientManager object that communicates with the associated user.
 	 */
 	private void addClient(String userName, ClientManager cm) {
-		clientMap.put(userName, cm);
+		activeUsers.put(userName, cm);
 	}
 	/**
 	 * To be executed when a client is connected.
-	 * 
+	 * switch based on the object given by the client.?
 	 */
 	public void run() {
-
 		try {
-			// what to send to/received from a client
-			toClient = client.getOutputStream();
-			fromClient = client.getInputStream();
-			input = (String) fromClient.readObject();
-			//			/*
-			//			 * show message that we got input, while we have input form the client
-			//			 * if the input is of type Account, store as account info,
-			//			 * if input is String, store as message. Stop here until receiving an input.
-			//			 */
-			//input = fromClient.readObject();
-			// the client can send object of Account / MessageHandler
-			// TODO receive string
-			/*
-			 * Switch based on the input number.
-			 * 0 - login
-			 * 1 - sign up
-			 * 2 - change password
-			 * 3 - reset password
-			 * 4 - change security code
-			 * 5 - reset security code
-			 * 6 - send private chat
-			 * 7 - send broadcast message
-			 * 8 - log out
-			 * 9 - delete account
-			 * 10 - search for a chat
-			 */
-			while (input != null) {
-				System.out.println("Got " + input + " from client");
-				String param;
-				String[] option = input.split("#", 2);
-				param = option[1];
-				switch (option[0]) {
-				case "0":
-					login(param);
-					break;
-				case "1":
-					signUp(param);
-					break;
-				case "2":
-					changePassword(param);
-					break;
-				case "3":
-					resetPassword(param);
-					break;
-				case "4":
-					changeSecurityCode(param);
-					break;
-				case "5":
-					resetSecurityCode(param);
-					break;
-				case "6":
-					sendPrivateChat(param);
-					break;
-				case "7":
-					broadcast(param);
-					break;
-				case "8":
-					//					searchChat(param);
-					break;
-				default:
-					System.out.println("Invalid command.");
-					break;
-				}
-				input = (String) fromClient.readObject();
+			// TODO decode fromClient and create an object depending on
+			// the command received
+			if (fromClient.command = "sign up") {
+				SignUp su = new SignUp();
+				signUp(fromClient);
 			}
 		} catch (Exception e) {
-			System.out.println("Error handling input from client");
+			System.out.println("Error in handling the mesage from client");
 		}
 	}
-
-
-
 	/**
 	 * Given an SignUp object, sign up the account with the database.
+	 * If the username is not already registered, set the status as 1,
+	 * else set it as -1.
 	 * XXX this has a security hole.
 	 * 
 	 * @param su account info.
 	 */
 	public void signUp(SignUp su) {
-
-		addClient(su.getUsername(), this);
-		getDB().signUp(su.getUsername(), su.getFirstName(),
-				su.getLastName(),su.getPassword(), su.getEmail(), -1);
-		//class SignUpReply implements StoC
-		SignUpReply sur = new SignUpReply();
-		sur.send(toClient);
+// TODO implement DB and replace activeUsers
+//		getDB().signUp(su.getUsername(), su.getFirstName(),
+//				su.getLastName(),su.getPassword(), su.getEmail(), -1);
+		if (activeUsers.get(su.getUsername()) != null) {
+			SignUpReply sur = new SignUpReply(-1);
+			try {
+				sur.send(toClient);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else {
+			addClient(su.getUsername(), this);
+			SignUpReply sur = new SignUpReply(1);
+			try {
+				sur.send(toClient);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 		
-		//			/*
-		//			 * Split the Account info first name and last name etc,
-		//			 * and store in database.
-		//			 */
-		//			String[] accountDetail = input.split("#");
-		//			String firstName = accountDetail[0];
-		//			String lastName = accountDetail[1];
-		//			String userName = accountDetail[2];
-		//			String email = accountDetail[3];
-		//			String password = accountDetail[4];
-		//			String securityCodeString = accountDetail[5];
-		//			int securityCode = Integer.parseInt(securityCodeString);
-
 	}
 
 	public String getUserName() {
@@ -208,7 +146,7 @@ public class ClientManager implements Runnable {
 		String[] msgInfo = param.split("#", 2);
 		ClientManager target = getClientManager(msgInfo[0]);
 		String sender = this.getUserName();
-		if (clientMap.get(msgInfo[1]) != null) {
+		if (activeUsers.get(msgInfo[1]) != null) {
 			// TODO get sender info
 			target.sendMessage(sender, msgInfo[1]);
 		}
@@ -233,10 +171,10 @@ public class ClientManager implements Runnable {
 
 		String sender = this.getUserName();
 		String msg = msgInfo[1];
-		//		Iterator<ClientManager> iter = new Iterator<ClientManager>(clientMap);
+		//		Iterator<ClientManager> iter = new Iterator<ClientManager>(activeUsers);
 		//		while (iter.hasNext()) {
 		//			iter.next();
-		clientMap.forEach((username, clientManager) -> {clientManager.sendMessage(sender, msg);});
+		activeUsers.forEach((username, clientManager) -> {clientManager.sendMessage(sender, msg);});
 		//		ClientManager target = getClientManager(sender);
 		//			target.sendMessage(sender, msg);
 	}
@@ -434,7 +372,7 @@ public class ClientManager implements Runnable {
 //	 *  key is username, value is a object of clientManager that is generated
 //	 *  on that user.
 //	 */
-//	private static HashMap<String, ClientManager> clientMap = 
+//	private static HashMap<String, ClientManager> activeUsers = 
 //			new HashMap<String, ClientManager>();
 //	/**
 //	 * Constructor of ClientManager class.
@@ -447,20 +385,20 @@ public class ClientManager implements Runnable {
 //	}
 //	/**
 //	 * Add a new user name and ClientManager object generated on the user
-//	 * to clientMap.
+//	 * to activeUsers.
 //	 * 
 //	 * @param userName unique user name to the user.
 //	 * @param cm ClientManager object that communicates with the associated user.
 //	 */
 //	private void addClient(String userName, ClientManager cm) {
-//		clientMap.put(userName, cm);
+//		activeUsers.put(userName, cm);
 //	}
 //	/**
-//	 * Given a unique username, remove the user from clientMap.
+//	 * Given a unique username, remove the user from activeUsers.
 //	 * @param userName
 //	 */
 //	private void removeClient(String userName) {
-//		clientMap.remove(userName);
+//		activeUsers.remove(userName);
 //	}
 //	/**
 //	 * Given a username, return the associated ClientManager.
@@ -468,7 +406,7 @@ public class ClientManager implements Runnable {
 //	 * @return Object of ClientManager.
 //	 */
 //	public static ClientManager getClientManager(String userName) {
-//		return clientMap.get(userName);
+//		return activeUsers.get(userName);
 //	}
 //	/**
 //	 * Return userName of this object.
@@ -612,7 +550,7 @@ public class ClientManager implements Runnable {
 //		String[] msgInfo = param.split("#", 2);
 //		ClientManager target = getClientManager(msgInfo[0]);
 //		String sender = this.username;
-//		if (clientMap.get(msgInfo[1]) != null) {
+//		if (activeUsers.get(msgInfo[1]) != null) {
 //			target.sendMessage(sender, msgInfo[1]);
 //		}
 //	}
@@ -634,12 +572,12 @@ public class ClientManager implements Runnable {
 //		//String[] msgInfo = param.split("#", 2);
 //		String sender = this.username;
 //		String msg = param; //msgInfo[1];
-////				Iterator<ClientManager> iter = clientMap.keySet().iterator();
+////				Iterator<ClientManager> iter = activeUsers.keySet().iterator();
 ////				while (iter.hasNext()) {
 ////					iter.next();
 ////		
 //		
-//		clientMap.forEach((username, clientManager)
+//		activeUsers.forEach((username, clientManager)
 //				-> {clientManager.sendMessage(sender, msg);});
 //		//		ClientManager target = getClientManager(sender);
 //		//			target.sendMessage(sender, msg);

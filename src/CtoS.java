@@ -1,5 +1,6 @@
 /**
- * Interface for messages from client to server. 
+ * Interface for messages from client to server.
+ * 
  * @author Miyo Takahashi
  * @version 2020-05-03
  */

@@ -8,5 +8,20 @@ design tests
 design protocol
  * use JSON
 establish client-server communication
+ * implement the client, server uses a dummy database for the time being
+ * 
 execute the tests
 make new plan
+
+split Client functionality into the part that does not depend on the socket
+but uses input and output streams (ClientBase) and the part that particularises
+it to a socket (SocketClient).
+
+2020-06-14
+   next step is implementing test cases for ClientBase. If a test fails,
+   check whether it is because of the test or it's actually ClientBase.
+   I have to work with the messenger test plan to guide the tests, with
+   Message.java file to make the test definition precise (make JSON definition
+   correct) and I have to generate ClientBaseTest.java ServerTest.java and
+   ClientManagerTest.java. If I get stuck on a test, I write the name in this
+   file and continue to the next.

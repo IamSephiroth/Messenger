@@ -151,8 +151,9 @@ public class ClientBase {
 	 *   + If "no", the user can continue to send messages.
 	 *   + Otherwise, asks the user the question again until they answer with 
 	 *     "yes" or "no".
+	 * @throws Exception 
 	 */
-	public void logout() throws IOException {
+	public void logout() throws Exception {
 		System.out.print("Are you sure you want to logout? ");
 		String input = fromUser.readLine();
 		if (input.equals("no")) {
@@ -171,8 +172,9 @@ public class ClientBase {
 	 *   + If "yes", delete the account and disconnect the user.
 	 *   + Otherwise, asks the user the question again until they answer with 
 	 *     "yes" or "no".
+	 * @throws Exception 
 	 */
-	public void deleteAccount() throws IOException {
+	public void deleteAccount() throws Exception {
 		System.out.print("Are you sure you want to delete account? ");
 		String input = fromUser.readLine();
 		if (input.equals("no")) {

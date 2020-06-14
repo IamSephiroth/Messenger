@@ -6,8 +6,8 @@ Responsibilities
 		* connecting to the server
 		* signing up users
 		* signing in users
-		* loging out users
-		* deleteing an account
+		* logging out users
+		* deleting an account
 		* sending text to another user
 		* creating groups
 		* sending text to a group the sender belongs to
@@ -24,16 +24,20 @@ Responsibilities
 Tests
 	- Client
 		* getting input
-			nothing to test besause it's provided by Java
+			nothing to test because it's provided by Java
 		* connecting to the server
 			if there is a server, listening in address:port and the client
 			tries to connect to address:port, the connection succeeds.
 			Otherwise, throw a ConnectionErrorException.
 		* signing up users
-			if the user inputs <username> and <password>, the Client writes to
-			the sending end of the socket a JSON message of the form
-			{ 'command':'sign up',
-			'user':'<username>',
+			if the user inputs <firstName>, <lastName>, <username>, <email>
+			and <password>, ClientBase writes to the sending end of the socket
+			a JSON message of the form
+			{ 'command':'signUpRequest',
+			'firstName':'<firstName>',
+			'lastName':'<lastName>',
+			'username':'<username>',
+			'email':'<email>',
 			'password':'<password>' }
 		* logging in users
 			if the user inputs <username> and <password>, the Client writes to
@@ -46,18 +50,18 @@ Tests
 			of the form
 			{ 'command':'log out',
 			'user':'<username>' }
-		* deleteing an account
+		* deleting an account
 			if the user inputs <username> and <password>, the Client writes to
 			the sending end of the socket a JSON message of the form
 			{ 'command':'delete account',
 			'user':'<username>',
 			'password':'<password>' }
 		* sending text to another user
-			Given a destination name <recepient> and <text>,
+			Given a destination name <recipient> and <text>,
 			the Client writes to the sending end of the socket a JSON message
 			of the form
 			{ 'command':'message',
-			'recepient':'<recepient>',
+			'recipient':'<recipient>',
 			'text':'<text>' }
 		* creating groups
 			if the user inputs <gname>, the Client writes to
@@ -92,7 +96,7 @@ Tests
 			{ 'command':'log in',
 			'user':'<username>',
 			'password':'<password>' }
-			is read from the receiveing end of the socket.
+			is read from the receiving end of the socket.
 			If <username> <password> matches,
 				+ the test for <user> isLoggedIn passes
 				+ ClientManager writes to the sending end of the socket
@@ -109,7 +113,7 @@ Tests
 			{ 'command':'send a message',
 			'destination':'<destination>',
 			'text':'<text>' }
-			is read from the receiveing end of the socket of the ClientManager
+			is read from the receiving end of the socket of the ClientManager
 			  for user <sender>.
 			If user <destination> is signed up and logged in, ClientManager
 			  writes to the sending end of the socket of the user <destination>

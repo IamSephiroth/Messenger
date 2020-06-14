@@ -34,6 +34,9 @@ public class Message {
 		}
 	}
 }
+/**
+ * This class defines sign up request message from client to the server.
+ */
 class SignUp extends Message implements CtoS {
 	private String firstName;
 	private String lastName;
@@ -42,7 +45,7 @@ class SignUp extends Message implements CtoS {
 	private String password;
 
 	public SignUp() {
-		super("sign up reply");
+		super("signUpRequest");
 	}
 
 	public void setFirstName(String firstName) {

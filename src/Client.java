@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -17,78 +16,68 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * ask the user if they are sure they want to logout, if yes, this ends the 
  * client and the connection with the server.
  * 
- * This class may make use of code provided in lectures and previous worksheets.
  * @author Kishan Patel
- * @version 2020-05-04
+ * @version 2020-05-10
  */
 public class Client {
-
-    private Socket server;
+    private Socket clientSocket;
     private BufferedReader fromUser;
     private OutputStream toServer;
     private InputStream fromServer;
     private Account user;
+    private int port = 50000;
 
     /**
      * Constructor to create a client. The constructor opens a socket connection 
      * with the server and also gets the server's input and output streams.
-     * @param serverName The server to connect to.
+     * @param host The server to connect to. (127.0.0.1 refers to localhost)
      */
-    public Client(String serverName){
+    public Client(String host) {
     	System.out.println("Establishing connection. Please wait.");
     	try {
-    		// Creates a socket to talk to serverName at port 50000.
-    		server = new Socket(serverName, 50000); 
-    		
-    		// Set up the streams to send and receive messages to and from the server.
+    		clientSocket = new Socket(host, port);
+    		// TODO InputStreamReader? 
     		fromUser = new BufferedReader(new InputStreamReader(System.in));
-        	toServer = server.getOutputStream();
-        	fromServer = server.getInputStream();
         	
-        	System.out.println("Connected to " + serverName);
-        	
+    		toServer = clientSocket.getOutputStream();
+        	fromServer = clientSocket.getInputStream();
+        	System.out.println("Connected to " + host);
     	} catch (UnknownHostException unknownHostException) {
-    		System.err.println("Unknown host: " + serverName);
-    		
+    		System.err.println("Unknown host: " + host);
         } catch (IOException ioException) {
-    		System.err.println("Server not found.");        
+    		System.err.println("IOException");        
         } 
     }
-
     /**
      * This closeConnection method is like a finalise method, it closes all of the 
      * streams and ends the connection with the server.
      */
     public void closeConnection() {
-    	System.out.println("Closing the connection to " + server.getInetAddress().getHostName() + ".");
-        // Close the streams
+    	System.out.println("Closing the connection to " +
+    			clientSocket.getInetAddress().getHostName() + ".");
         try {
 			toServer.close();
-		} catch (IOException e) {
+		} catch (IOException e) { 
 			System.err.println("Could not close stream.");
 		}
-        
         try {
 			fromServer.close();
 		} catch (IOException e) {
 			System.err.println("Could not close stream.");
 		}
-        
         try {
 			fromUser.close();
 		} catch (Exception e) {
 			System.err.println("Could not close stream.");
 		}
-        
         try {
-			server.close();
+			clientSocket.close();
 			System.out.println("Connection closed.");
 		} catch (IOException e) {
-			System.err.println("Could not close connection to " + server.getInetAddress().getHostName() + ".");
+			System.err.println("Could not close connection to " +
+					clientSocket.getInetAddress().getHostName() + ".");
 		} 
     }
-    
-
     /**
      * This method asks the client whether they want to sign in or 
      * sign up for a new account.
@@ -98,66 +87,48 @@ public class Client {
      * answer with existing or new.
      */
     public void loginOrSignUp() {
-    	System.out.print("Are you an existing or new user? ");
+    	System.out.print("Are you an existing or new user?"
+    			+ " Type '1' for existing, '2' otherwise.");
     	try {
-    		String response = fromUser.readLine();
-    		if (response.equals("existing")) {
-    			//Existing users are taken to the login page.
+    		String input = fromUser.readLine();
+    		if (input.equals("1")) {
     			login();
-    		} else if (response.equals("new")) {
-    			//New users are taken to the sign up page.
+    		} else if (input.equals("2")) {
     			signUp();
     		} else {
-    			//If neither, the user is asked the question again.
     			loginOrSignUp();
     		}
     	} catch (Exception e) {
-    		System.err.println("Error, try again.");
+    		System.err.println("Something went wrong. Please try again.");
     		closeConnection();
     	}
     }
-    
-    /**
-     * This method makes the client log in to their account.
-     */
+	/**
+	 * Login to an existing account. Check if the combination of the username
+	 * and the password entered by the user matches the data stored in the
+	 * database. Allow up to 3 login attempts. Ask the user to reset their
+	 * password after 3 fails.
+	 */
     public void login() {
-    	/*
-    	 * Connect to database, ask user to enter username and password.
-    	 * Check that that combination exists in the database, if it does 
-    	 * then log the user into their account.
-    	 * If it is incorrect, the user tries again. 
-    	 */
     	System.out.println("Login to account.");
+    	/*
+    	 * Get input from the user.
+    	 */
     	try {
     		System.out.print("Please enter your username: ");
     		String username = fromUser.readLine();
     		System.out.print("Please enter your password: ");
     		String password = fromUser.readLine();
-    		/*
-    		 * If the username and password combination is correct, get the account 
-    		 * object and set the "user" object to that object.
-    		 */
-    	}  catch(Exception e) {
+    	} catch (Exception e) {
     		System.err.println("Error, try again. ");
     		closeConnection();
-    	} 
-    	
-    	/* 
-    	 * If the user has no remaining login attempts, they are requested to 
-    	 * reset their password.
-    	 */
-    	try {
-        	if (user.getRemainingLoginAttempts() == 0) {
-//        		user.resetPassword(fromUser);
-//        		toServer.reset();
-        		//toServer.writeObject(user);
-        	}
-    	} catch (Exception e) {
-    		System.out.println("Error, try again.");
     	}
-
+    	/*
+    	 * TODO form message following the protocol
+    	 * Send login request to the server.
+    	 */
+    	
     }
-    
     /**
      * This method makes the Client create a new account.
      * @throws IOException 
@@ -182,6 +153,7 @@ public class Client {
 		s.close();
 		/*
 		 * Convert SignUp object to JSON String.
+		 * TODO is this just for checking JSON format?
 		 */
 		ObjectMapper om = new ObjectMapper();
 		try {
@@ -206,10 +178,10 @@ public class Client {
     public void logout() {
     	System.out.print("Are you sure you want to logout? ");
     	try {
-    		String response = fromUser.readLine();
-			if (response.equals("no")) {
+    		String input = fromUser.readLine();
+			if (input.equals("no")) {
 				sendMessage();
-			} else if (response.equals("yes")) {
+			} else if (input.equals("yes")) {
 				user.logout();
 				System.out.println("Logged out!");
 //				toServer.reset(); //Reset outputStream to clear cache.
@@ -234,10 +206,10 @@ public class Client {
     public void deleteAccount() {
     	System.out.print("Are you sure you want to delete account? ");
     	try {
-    		String response = fromUser.readLine();
-			if (response.equals("no")) {
+    		String input = fromUser.readLine();
+			if (input.equals("no")) {
 				sendMessage();
-			} else if (response.equals("yes")) {
+			} else if (input.equals("yes")) {
 				user.deleteAccount();
 				System.out.println("Account Deleted!");
 //				toServer.reset(); //Reset outputStream to clear cache.
