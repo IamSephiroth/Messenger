@@ -1,0 +1,134 @@
+test plan - messenger
+
+Responsibilities
+	- Client
+		* getting input from users
+		* connecting to the server
+		* signing up users
+		* signing in users
+		* loging out users
+		* deleteing an account
+		* sending text to another user
+		* creating groups
+		* sending text to a group the sender belongs to
+		* deleting text
+		* sending files (i.e. photo)
+	- Server
+		* accepting clients
+	- ClientManager
+		* keeping track of signed up users
+		* keeping track of logged in users
+		* checking credentials
+		* relaying messages from clients
+		* checking if a user belongs to a given group
+Tests
+	- Client
+		* getting input
+			nothing to test besause it's provided by Java
+		* connecting to the server
+			if there is a server, listening in address:port and the client
+			tries to connect to address:port, the connection succeeds.
+			Otherwise, throw a ConnectionErrorException.
+		* signing up users
+			if the user inputs <username> and <password>, the Client writes to
+			the sending end of the socket a JSON message of the form
+			{ 'command':'sign up',
+			'user':'<username>',
+			'password':'<password>' }
+		* logging in users
+			if the user inputs <username> and <password>, the Client writes to
+			the sending end of the socket a JSON message of the form
+			{ 'command':'log in',
+			'user':'<username>',
+			'password':'<password>' }
+		* logging out users
+			the Client writes to the sending end of the socket a JSON message
+			of the form
+			{ 'command':'log out',
+			'user':'<username>' }
+		* deleteing an account
+			if the user inputs <username> and <password>, the Client writes to
+			the sending end of the socket a JSON message of the form
+			{ 'command':'delete account',
+			'user':'<username>',
+			'password':'<password>' }
+		* sending text to another user
+			Given a destination name <recepient> and <text>,
+			the Client writes to the sending end of the socket a JSON message
+			of the form
+			{ 'command':'message',
+			'recepient':'<recepient>',
+			'text':'<text>' }
+		* creating groups
+			if the user inputs <gname>, the Client writes to
+			the sending end of the socket a JSON message of the form
+			{ 'command':'create group',
+			'gname':'<gname>' }
+		* sending text to a group the sender belongs to
+			send and error
+			- Given a destination group name <gname> and <text>, the Client
+			writes to the sending end of the socket a JSON message of form
+			{ 'command':'gchat',
+			'group name':'<gname>',
+			'text':'<text> }
+		* deleting text
+			TBD
+		* sending files (i.e. photo)
+			TBD
+	- Server
+		* accepting clients			
+			if the Client sends connection request to address:port, and the
+			server is listening on address:port, the connection succeeds.
+			Otherwise, throw ConnectionNotEstablishedException.
+	- ClientManager
+		* keeping track of signed up users
+			TBD
+		* keeping track of logged in users
+			if <user> logs in, the test for <user> isLoggedIn passes.
+			If <user> logs out, the test for <user> isLoggedIn fails.
+			If <user> is not signed up user, throw a UserNotFoundException.
+		* checking credentials
+			If a request like
+			{ 'command':'log in',
+			'user':'<username>',
+			'password':'<password>' }
+			is read from the receiveing end of the socket.
+			If <username> <password> matches,
+				+ the test for <user> isLoggedIn passes
+				+ ClientManager writes to the sending end of the socket
+				  a JSON message of the form
+				  { 'command':'login reply',
+				  'text':'Successfully logged in.' }
+			If <username> <password> doesn't match,
+				+ ClientManager writes to the sending end of the socket
+				  a JSON message of the form
+				  { 'command':'login reply',
+				  'text':'Failed to log in.' }
+		* relaying messages from clients
+			If a request like
+			{ 'command':'send a message',
+			'destination':'<destination>',
+			'text':'<text>' }
+			is read from the receiveing end of the socket of the ClientManager
+			  for user <sender>.
+			If user <destination> is signed up and logged in, ClientManager
+			  writes to the sending end of the socket of the user <destination>
+			  a JSON message in a form
+			  {'command':'message to destination',
+			  'destination':'<destination>',
+			  'text':'<text>' }
+			If the user <destination> is signed up but not logged in,
+			  ClientManager writes to the socket of the user <sender> a JSON
+			  message in a form
+			  { 'command':'send a message reply',
+			  'text':'the recipient is not online. Couldn't send the message'. 
+			  }
+			If <destination> is not signed up, ClientManager writes to the
+			  socket of the user <sender> a JSON message in a form
+			  {'command':'send a message reply',
+			  'text':'the recipient does not exist. Couldn't send the message.'
+			  }
+		* checking if a user belongs to a given group
+			If the user <user> belongs to a given group <group>, return true.
+			If the user <user> does not belong to a given group <group>, return
+			  false.
